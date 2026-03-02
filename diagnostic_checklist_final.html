@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Диагностика промптов | @KIRILL.AI.POL</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            min-height: 100vh;
+            padding: 0;
+            line-height: 1.6;
+            position: relative;
+            overflow-x: hidden;
+            transition: background 0.4s ease, color 0.4s ease;
+        }
+        
+        /* Light theme (default) */
+        body {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 50%, #f8f9fa 100%);
+            color: #1a1a1a;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 20% 50%, rgba(212, 255, 0, 0.08) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 80%, rgba(0, 217, 255, 0.08) 0%, transparent 50%),
+                        radial-gradient(circle at 40% 20%, rgba(212, 255, 0, 0.05) 0%, transparent 50%);
+            animation: gradientShift 20s ease infinite;
+            z-index: 0;
+            pointer-events: none;
+        }
+        
+        /* Dark theme */
+        body.dark-theme {
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0a0a0a 100%);
+            color: #ffffff;
+        }
+        
+        body.dark-theme::before {
+            background: radial-gradient(circle at 20% 50%, rgba(212, 255, 0, 0.15) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 80%, rgba(0, 217, 255, 0.15) 0%, transparent 50%),
+                        radial-gradient(circle at 40% 20%, rgba(212, 255, 0, 0.1) 0%, transparent 50%);
+        }
+        
+        @keyframes gradientShift {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            33% { transform: translate(5%, 5%) rotate(120deg); }
+            66% { transform: translate(-5%, 5%) rotate(240deg); }
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            min-height: 100vh;
+            padding: 0;
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* Theme Toggle */
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50px;
+            padding: 8px 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+        }
+        
+        body.dark-theme .theme-toggle {
+            background: rgba(0, 0, 0, 0.6);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .theme-toggle:hover {
+            transform: scale(1.05);
+        }
+        
+        .theme-toggle-icon {
+            font-size: 18px;
+            transition: transform 0.3s ease;
+        }
+        
+        .theme-toggle-text {
+            font-size: 13px;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+        
+        body.dark-theme .theme-toggle-text {
+            color: #ffffff;
+        }
+        
+        /* Header - Subtle glassmorphism */
+        .header {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            padding: 50px 30px 40px;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.03);
+        }
+        
+        body.dark-theme .header {
+            background: rgba(0, 0, 0, 0.4);
+            border-bottom-color: rgba(212, 255, 0, 0.2);
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+        }
+        
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent 0%, rgba(212, 255, 0, 0.3) 50%, transparent 100%);
+        }
+        
+        .brand {
+            color: #00a8cc;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+        }
+        
+        body.dark-theme .brand {
+            color: #00D9FF;
+            text-shadow: 0 0 10px rgba(0, 217, 255, 0.3);
+        }
+        
+        h1 {
+            font-size: 32px;
+            font-weight: 900;
+            margin-bottom: 18px;
+            line-height: 1.2;
+            text-transform: uppercase;
+            letter-spacing: -1px;
+        }
+        
+        body.dark-theme h1 {
+            color: #ffffff;
+        }
+        
+        h1 .highlight {
+            background: linear-gradient(135deg, #8bc34a 0%, #00a8cc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        body.dark-theme h1 .highlight {
+            background: linear-gradient(135deg, #D4FF00 0%, #00D9FF 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .subtitle {
+            color: #666666;
+            font-size: 15px;
+            line-height: 1.6;
+            max-width: 600px;
+            margin: 0 auto;
+            font-weight: 500;
+        }
+        
+        body.dark-theme .subtitle {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .intro-box {
+            background: linear-gradient(135deg, #D4FF00 0%, #B8E000 100%);
+            padding: 30px 25px;
+            margin: 0;
+            color: #000000;
+            position: relative;
+            box-shadow: 0 4px 16px rgba(212, 255, 0, 0.2);
+        }
+        
+        .intro-box p {
+            font-size: 15px;
+            margin-bottom: 12px;
+            font-weight: 600;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .intro-box p:last-child {
+            margin-bottom: 0;
+            font-weight: 800;
+        }
+        
+        .intro-box strong {
+            font-weight: 900;
+        }
+        
+        .problems-container {
+            padding: 30px 25px;
+        }
+        
+        .problem-section {
+            margin-bottom: 24px;
+            padding: 0;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+            position: relative;
+        }
+        
+        body.dark-theme .problem-section {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+        
+        .problem-section:hover {
+            border-color: rgba(0, 217, 255, 0.4);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0, 217, 255, 0.15);
+        }
+        
+        .problem-section.checked {
+            background: rgba(212, 255, 0, 0.15);
+            border-color: rgba(212, 255, 0, 0.5);
+            box-shadow: 0 8px 32px rgba(212, 255, 0, 0.2);
+        }
+        
+        body.dark-theme .problem-section.checked {
+            background: rgba(212, 255, 0, 0.08);
+            border-color: rgba(212, 255, 0, 0.6);
+            box-shadow: 0 0 40px rgba(212, 255, 0, 0.3);
+        }
+        
+        .problem-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 18px;
+            padding: 26px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .checkbox-container {
+            position: relative;
+            flex-shrink: 0;
+            margin-top: 3px;
+        }
+        
+        .checkbox-large {
+            width: 32px;
+            height: 32px;
+            cursor: pointer;
+            opacity: 0;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 2;
+        }
+        
+        .checkbox-custom {
+            width: 32px;
+            height: 32px;
+            border: 2px solid rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            background: rgba(255, 255, 255, 0.9);
+            position: relative;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+        
+        body.dark-theme .checkbox-custom {
+            border-color: rgba(255, 255, 255, 0.3);
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+        }
+        
+        .checkbox-large:checked + .checkbox-custom {
+            background: linear-gradient(135deg, #D4FF00 0%, #00D9FF 100%);
+            border-color: transparent;
+            box-shadow: 0 0 20px rgba(212, 255, 0, 0.5);
+            transform: scale(1.05);
+        }
+        
+        .checkbox-custom::after {
+            content: "✓";
+            color: #000000;
+            font-size: 22px;
+            font-weight: 900;
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: scale(0.5) rotate(-10deg);
+        }
+        
+        .checkbox-large:checked + .checkbox-custom::after {
+            opacity: 1;
+            transform: scale(1) rotate(0deg);
+        }
+        
+        .problem-title {
+            font-size: 18px;
+            font-weight: 700;
+            flex: 1;
+            line-height: 1.4;
+            letter-spacing: -0.3px;
+        }
+        
+        body.dark-theme .problem-title {
+            color: #ffffff;
+        }
+        
+        .problem-content {
+            padding: 0 26px 26px 76px;
+        }
+        
+        .problem-description {
+            color: #666666;
+            font-size: 14px;
+            margin-bottom: 18px;
+            line-height: 1.6;
+            font-weight: 500;
+        }
+        
+        body.dark-theme .problem-description {
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .example-box {
+            margin-top: 18px;
+        }
+        
+        .example-label {
+            font-size: 11px;
+            font-weight: 800;
+            color: #dc3545;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .example-label.good {
+            color: #28a745;
+        }
+        
+        body.dark-theme .example-label {
+            color: #ff4444;
+            text-shadow: 0 0 8px rgba(255, 68, 68, 0.3);
+        }
+        
+        body.dark-theme .example-label.good {
+            color: #D4FF00;
+            text-shadow: 0 0 8px rgba(212, 255, 0, 0.3);
+        }
+        
+        .example-content {
+            background: rgba(0, 0, 0, 0.04);
+            padding: 14px 16px;
+            border-radius: 10px;
+            font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
+            font-size: 12px;
+            color: #2a2a2a;
+            margin-bottom: 14px;
+            border-left: 3px solid #dc3545;
+            line-height: 1.7;
+        }
+        
+        body.dark-theme .example-content {
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(10px);
+            color: rgba(255, 255, 255, 0.8);
+            border-left-color: #ff4444;
+        }
+        
+        .example-content.good {
+            border-left-color: #28a745;
+        }
+        
+        body.dark-theme .example-content.good {
+            border-left-color: #D4FF00;
+        }
+        
+        .hint-box {
+            background: rgba(0, 217, 255, 0.08);
+            border: 1px solid rgba(0, 217, 255, 0.2);
+            border-left: 3px solid #00a8cc;
+            padding: 14px 16px;
+            margin-top: 14px;
+            border-radius: 10px;
+            font-size: 13px;
+            color: #2a2a2a;
+            font-weight: 500;
+        }
+        
+        body.dark-theme .hint-box {
+            background: rgba(0, 217, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-color: rgba(0, 217, 255, 0.3);
+            border-left-color: #00D9FF;
+            color: rgba(255, 255, 255, 0.9);
+        }
+        
+        .hint-box strong {
+            color: #00a8cc;
+            font-weight: 800;
+        }
+        
+        body.dark-theme .hint-box strong {
+            color: #00D9FF;
+        }
+        
+        .results-container {
+            display: none;
+            padding: 30px 25px;
+            animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        @keyframes fadeInUp {
+            from { 
+                opacity: 0; 
+                transform: translateY(30px);
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0);
+            }
+        }
+        
+        .results-container.active {
+            display: block;
+        }
+        
+        .score-box {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border: 2px solid rgba(212, 255, 0, 0.3);
+            padding: 50px 35px;
+            border-radius: 20px;
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+        }
+        
+        body.dark-theme .score-box {
+            background: rgba(0, 0, 0, 0.5);
+            box-shadow: 0 0 60px rgba(212, 255, 0, 0.2);
+        }
+        
+        .score-number {
+            font-size: 80px;
+            font-weight: 900;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, #8bc34a 0%, #00a8cc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            position: relative;
+            z-index: 1;
+        }
+        
+        body.dark-theme .score-number {
+            background: linear-gradient(135deg, #D4FF00 0%, #00D9FF 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            filter: drop-shadow(0 0 20px rgba(212, 255, 0, 0.3));
+        }
+        
+        .score-text {
+            font-size: 15px;
+            color: #666666;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 700;
+            position: relative;
+            z-index: 1;
+        }
+        
+        body.dark-theme .score-text {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .diagnosis {
+            background: rgba(220, 53, 69, 0.08);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 2px solid rgba(220, 53, 69, 0.2);
+            border-radius: 16px;
+            padding: 28px 24px;
+            margin-bottom: 28px;
+            box-shadow: 0 4px 16px rgba(220, 53, 69, 0.08);
+        }
+        
+        body.dark-theme .diagnosis {
+            background: rgba(255, 68, 68, 0.1);
+            border-color: rgba(255, 68, 68, 0.3);
+            box-shadow: 0 8px 32px rgba(255, 68, 68, 0.15);
+        }
+        
+        .diagnosis h3 {
+            color: #dc3545;
+            font-size: 17px;
+            margin-bottom: 18px;
+            text-transform: uppercase;
+            font-weight: 900;
+            letter-spacing: 1px;
+        }
+        
+        body.dark-theme .diagnosis h3 {
+            color: #ff6b6b;
+        }
+        
+        .diagnosis ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        .diagnosis li {
+            color: #2a2a2a;
+            margin-bottom: 12px;
+            padding-left: 28px;
+            position: relative;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        body.dark-theme .diagnosis li {
+            color: rgba(255, 255, 255, 0.9);
+        }
+        
+        .diagnosis li:before {
+            content: "✕";
+            position: absolute;
+            left: 0;
+            color: #dc3545;
+            font-weight: 900;
+            font-size: 16px;
+        }
+        
+        body.dark-theme .diagnosis li:before {
+            color: #ff4444;
+        }
+        
+        .cta-box {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border: 2px solid rgba(212, 255, 0, 0.3);
+            padding: 40px 30px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+            position: relative;
+        }
+        
+        body.dark-theme .cta-box {
+            background: rgba(0, 0, 0, 0.6);
+            box-shadow: 0 0 60px rgba(212, 255, 0, 0.2);
+        }
+        
+        .cta-box h2 {
+            font-size: 26px;
+            margin-bottom: 18px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #8bc34a 0%, #00a8cc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        body.dark-theme .cta-box h2 {
+            background: linear-gradient(135deg, #D4FF00 0%, #00D9FF 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .cta-box p {
+            font-size: 15px;
+            margin-bottom: 24px;
+            font-weight: 500;
+            line-height: 1.6;
+            color: #2a2a2a;
+        }
+        
+        body.dark-theme .cta-box p {
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .benefits-list {
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            border-radius: 12px;
+            padding: 20px 24px;
+            margin-bottom: 24px;
+            text-align: left;
+        }
+        
+        body.dark-theme .benefits-list {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .benefit-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 12px;
+            font-size: 14px;
+            line-height: 1.5;
+            color: #2a2a2a;
+        }
+        
+        body.dark-theme .benefit-item {
+            color: rgba(255, 255, 255, 0.85);
+        }
+        
+        .benefit-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .benefit-check {
+            color: #689f38;
+            font-weight: 900;
+            font-size: 16px;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+        
+        body.dark-theme .benefit-check {
+            color: #D4FF00;
+        }
+        
+        .benefit-item strong {
+            font-weight: 800;
+        }
+        
+        .cta-footer {
+            margin-top: 20px;
+            font-size: 13px;
+            color: #666666;
+            font-weight: 500;
+            opacity: 0.8;
+        }
+        
+        body.dark-theme .cta-footer {
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .cta-btn {
+            background: linear-gradient(135deg, #D4FF00 0%, #00D9FF 100%);
+            color: #000000;
+            border: none;
+            padding: 20px 60px;
+            border-radius: 12px;
+            font-size: 17px;
+            font-weight: 900;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            margin-top: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 8px 32px rgba(212, 255, 0, 0.3);
+        }
+        
+        .cta-btn:hover {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 12px 48px rgba(212, 255, 0, 0.4);
+        }
+        
+        .check-btn {
+            background: linear-gradient(135deg, #D4FF00 0%, #00D9FF 100%);
+            color: #000000;
+            border: none;
+            padding: 20px 40px;
+            border-radius: 12px;
+            font-size: 17px;
+            font-weight: 900;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 35px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 8px 32px rgba(212, 255, 0, 0.3);
+        }
+        
+        .check-btn:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 48px rgba(212, 255, 0, 0.4);
+        }
+        
+        .footer-note {
+            text-align: center;
+            color: #999999;
+            font-size: 13px;
+            margin-top: 35px;
+            padding: 25px;
+            font-style: italic;
+            font-weight: 500;
+        }
+        
+        body.dark-theme .footer-note {
+            color: rgba(255, 255, 255, 0.4);
+        }
+        
+        /* Mobile optimization */
+        @media (max-width: 768px) {
+            .theme-toggle {
+                top: 15px;
+                right: 15px;
+                padding: 6px 12px;
+            }
+            
+            .theme-toggle-text {
+                display: none;
+            }
+            
+            .header {
+                padding: 35px 20px 30px;
+            }
+            
+            h1 {
+                font-size: 24px;
+            }
+            
+            .score-number {
+                font-size: 64px;
+            }
+            
+            .problem-title {
+                font-size: 16px;
+            }
+            
+            .problems-container {
+                padding: 20px 15px;
+            }
+            
+            .problem-content {
+                padding-left: 20px;
+                padding-right: 20px;
+            }
+            
+            .benefits-list {
+                padding: 16px 18px;
+            }
+            
+            .benefit-item {
+                font-size: 13px;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Theme Toggle -->
+    <div class="theme-toggle" onclick="toggleTheme()">
+        <span class="theme-toggle-icon" id="themeIcon">☀️</span>
+        <span class="theme-toggle-text" id="themeText">Светлая тема</span>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <div class="brand">@KIRILL.AI.POL</div>
+            <h1>
+                ПОЧЕМУ НЕЙРОСЕТЬ<br>
+                <span class="highlight">ВАС НЕ СЛУШАЕТСЯ?</span>
+            </h1>
+            <p class="subtitle">Бесплатная диагностика ваших промптов. Отметьте проблемы, с которыми вы сталкиваетесь</p>
+        </div>
+        
+        <div class="intro-box">
+            <p>🎯 <strong>ЗНАКОМАЯ СИТУАЦИЯ?</strong> Вы представляете идеальную картинку в голове, пишете промпт, а нейросеть выдаёт совсем не то...</p>
+            <p>Проблема не в нейросети — проблема в структуре промпта. Пройдите быструю диагностику и узнайте, что вы делаете не так!</p>
+        </div>
+        
+        <form id="diagnosticForm">
+            <div class="problems-container">
+                <!-- Проблема 1 -->
+                <div class="problem-section" data-problem="1" onclick="toggleProblem(1)">
+                    <div class="problem-header">
+                        <div class="checkbox-container">
+                            <input type="checkbox" class="checkbox-large" id="problem1" onclick="event.stopPropagation()">
+                            <div class="checkbox-custom"></div>
+                        </div>
+                        <label for="problem1" class="problem-title">Нейросеть генерирует не то, что главное</label>
+                    </div>
+                    <div class="problem-content">
+                        <div class="problem-description">
+                            Вы описываете много деталей, но модель "размазывает" внимание. Девушка на фоне превращается в фон с девушкой.
+                        </div>
+                        <div class="example-box">
+                            <div class="example-label">✕ ПЛОХОЙ ПРОМПТ:</div>
+                            <div class="example-content">
+                                beautiful sunset, mountains, lake, trees, girl sitting, birds flying, clouds, golden light, peaceful atmosphere
+                            </div>
+                            <div class="example-label good">✓ ПРАВИЛЬНЫЙ ПРОМПТ:</div>
+                            <div class="example-content good">
+                                girl sitting by mountain lake at sunset; peaceful atmosphere, mountains in background, golden hour light
+                            </div>
+                            <div class="hint-box">
+                                💡 <strong>РЕШЕНИЕ:</strong> Главный объект всегда в начало. В гайде — структура из 8 блоков по приоритету.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Проблема 2 -->
+                <div class="problem-section" data-problem="2" onclick="toggleProblem(2)">
+                    <div class="problem-header">
+                        <div class="checkbox-container">
+                            <input type="checkbox" class="checkbox-large" id="problem2" onclick="event.stopPropagation()">
+                            <div class="checkbox-custom"></div>
+                        </div>
+                        <label for="problem2" class="problem-title">Получается "красиво", но не как задумано</label>
+                    </div>
+                    <div class="problem-content">
+                        <div class="problem-description">
+                            Вы используете оценочные слова вместо конкретных характеристик. Для нейросети "стильный продукт" ничего не значит.
+                        </div>
+                        <div class="example-box">
+                            <div class="example-label">✕ ПЛОХОЙ ПРОМПТ:</div>
+                            <div class="example-content">
+                                stylish premium perfume bottle, beautiful design, elegant, luxury
+                            </div>
+                            <div class="example-label good">✓ ПРАВИЛЬНЫЙ ПРОМПТ:</div>
+                            <div class="example-content good">
+                                matte black perfume bottle with golden cap, rectangular shape, subtle engraved logo; studio softbox lighting, clean white background
+                            </div>
+                            <div class="hint-box">
+                                💡 <strong>РЕШЕНИЕ:</strong> Конкретика вместо оценок: форма, материал, цвет, ракурс. В гайде — чек-лист терминов.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Проблема 3 -->
+                <div class="problem-section" data-problem="3" onclick="toggleProblem(3)">
+                    <div class="problem-header">
+                        <div class="checkbox-container">
+                            <input type="checkbox" class="checkbox-large" id="problem3" onclick="event.stopPropagation()">
+                            <div class="checkbox-custom"></div>
+                        </div>
+                        <label for="problem3" class="problem-title">Стиль "гуляет" от картинки к картинке</label>
+                    </div>
+                    <div class="problem-content">
+                        <div class="problem-description">
+                            То фотореализм, то иллюстрация, то что-то среднее. Вы не задаёте чёткий визуальный язык.
+                        </div>
+                        <div class="example-box">
+                            <div class="example-label">✕ ПЛОХОЙ ПРОМПТ:</div>
+                            <div class="example-content">
+                                cozy coffee shop scene, nice lighting, artistic style
+                            </div>
+                            <div class="example-label good">✓ ПРАВИЛЬНЫЙ ПРОМПТ:</div>
+                            <div class="example-content good">
+                                cozy coffee shop interior; soft natural window light, warm tones; realistic photography, shallow depth of field, bokeh; ultra-detailed
+                            </div>
+                            <div class="hint-box">
+                                💡 <strong>РЕШЕНИЕ:</strong> Профтермины задают стиль: bokeh, softbox, octane render. Метод "Референс-описание" в гайде.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Проблема 4 -->
+                <div class="problem-section" data-problem="4" onclick="toggleProblem(4)">
+                    <div class="problem-header">
+                        <div class="checkbox-container">
+                            <input type="checkbox" class="checkbox-large" id="problem4" onclick="event.stopPropagation()">
+                            <div class="checkbox-custom"></div>
+                        </div>
+                        <label for="problem4" class="problem-title">Лишние объекты, текст, артефакты</label>
+                    </div>
+                    <div class="problem-content">
+                        <div class="problem-description">
+                            На картинке появляются случайные предметы, нечитаемые надписи, деформированные пальцы.
+                        </div>
+                        <div class="example-box">
+                            <div class="example-label">✕ ПЛОХОЙ ПРОМПТ (БЕЗ НЕГАТИВА):</div>
+                            <div class="example-content">
+                                portrait of a woman, close-up, studio lighting
+                            </div>
+                            <div class="example-label good">✓ ПРАВИЛЬНЫЙ ПРОМПТ:</div>
+                            <div class="example-content good">
+                                portrait of a woman, close-up, studio lighting; Negative: blurry, deformed face, extra fingers, watermark, text, low resolution
+                            </div>
+                            <div class="hint-box">
+                                💡 <strong>РЕШЕНИЕ:</strong> Negative только по делу — что реально портит. Длинный негатив "сушит" картинку.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Проблема 5 -->
+                <div class="problem-section" data-problem="5" onclick="toggleProblem(5)">
+                    <div class="problem-header">
+                        <div class="checkbox-container">
+                            <input type="checkbox" class="checkbox-large" id="problem5" onclick="event.stopPropagation()">
+                            <div class="checkbox-custom"></div>
+                        </div>
+                        <label for="problem5" class="problem-title">Нет контроля над композицией и ракурсом</label>
+                    </div>
+                    <div class="problem-content">
+                        <div class="problem-description">
+                            Модель сама решает, как снять кадр. То крупный план, то общий, то сбоку, то сверху.
+                        </div>
+                        <div class="example-box">
+                            <div class="example-label">✕ ПЛОХОЙ ПРОМПТ:</div>
+                            <div class="example-content">
+                                product shot of black bottle
+                            </div>
+                            <div class="example-label good">✓ ПРАВИЛЬНЫЙ ПРОМПТ:</div>
+                            <div class="example-content good">
+                                black bottle; centered composition, slight top-down angle, 4:5 vertical framing, space on right for text; shallow depth of field
+                            </div>
+                            <div class="hint-box">
+                                💡 <strong>РЕШЕНИЕ:</strong> Композиция — отдельный блок промпта. Метод "Ограничения сначала" для рекламы.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Проблема 6 -->
+                <div class="problem-section" data-problem="6" onclick="toggleProblem(6)">
+                    <div class="problem-header">
+                        <div class="checkbox-container">
+                            <input type="checkbox" class="checkbox-large" id="problem6" onclick="event.stopPropagation()">
+                            <div class="checkbox-custom"></div>
+                        </div>
+                        <label for="problem6" class="problem-title">Результат нестабилен — каждый раз новый</label>
+                    </div>
+                    <div class="problem-content">
+                        <div class="problem-description">
+                            Вы пытаетесь повторить удачную генерацию, но она "не ловится". Промпт слишком хаотичный.
+                        </div>
+                        <div class="example-box">
+                            <div class="example-label">✕ ХАОТИЧНЫЙ ПРОМПТ:</div>
+                            <div class="example-content">
+                                futuristic city night fog neon cyclist street reflections cool vibe cyberpunk detailed
+                            </div>
+                            <div class="example-label good">✓ СТРУКТУРИРОВАННЫЙ ПРОМПТ:</div>
+                            <div class="example-content good">
+                                futuristic city street at night, lone cyclist silhouette; wet asphalt reflections, neon signs, volumetric fog; wide shot, vanishing point perspective; neon rim light, teal-magenta harmony; stylized digital illustration, cyberpunk poster art
+                            </div>
+                            <div class="hint-box">
+                                💡 <strong>РЕШЕНИЕ:</strong> Метод "Слои" — каждый слой отвечает за своё. Даёт повторяемость.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <button type="submit" class="check-btn">📊 ПОЛУЧИТЬ ДИАГНОСТИКУ</button>
+            </div>
+        </form>
+        
+        <div class="results-container" id="results">
+            <div class="score-box">
+                <div class="score-number" id="scoreNumber">0</div>
+                <div class="score-text" id="scoreText">ПРОБЛЕМ ОБНАРУЖЕНО</div>
+            </div>
+            
+            <div class="diagnosis">
+                <h3>🚨 ВАШ ДИАГНОЗ:</h3>
+                <ul id="problemsList"></ul>
+            </div>
+            
+            <div class="cta-box">
+                <h2>ПОЛУЧИТЕ РЕШЕНИЕ<br>ПРЯМО СЕЙЧАС</h2>
+                <p><strong>Полный гайд "Как писать промпты"</strong> — система для создания предсказуемых картинок с первого раза</p>
+                
+                <div class="benefits-list">
+                    <div class="benefit-item">
+                        <span class="benefit-check">✓</span>
+                        <span>5 методов написания промптов под разные задачи</span>
+                    </div>
+                    <div class="benefit-item">
+                        <span class="benefit-check">✓</span>
+                        <span>Универсальный шаблон из 8 блоков с примерами</span>
+                    </div>
+                    <div class="benefit-item">
+                        <span class="benefit-check">✓</span>
+                        <span>Чек-лист правил + профессиональные термины</span>
+                    </div>
+                    <div class="benefit-item">
+                        <span class="benefit-check">✓</span>
+                        <span>5 детальных примеров (портреты, пейзажи, иллюстрации, реклама)</span>
+                    </div>
+                    <div class="benefit-item">
+                        <span class="benefit-check">✓</span>
+                        <span>Структуры в Markdown/XML/JSON для быстрого редактирования</span>
+                    </div>
+                    <div class="benefit-item">
+                        <span class="benefit-check">✓</span>
+                        <span><strong>БОНУС:</strong> Лучшие площадки + способ получить 1000 генераций/месяц бесплатно</span>
+                    </div>
+                </div>
+                
+                <button class="cta-btn" onclick="handleGetGuide()">
+                    ПОЛУЧИТЬ ПОЛНЫЙ ГАЙД
+                </button>
+            </div>
+        </div>
+        
+        <p class="footer-note">💡 Этот чек-лист — фрагмент полного гайда, который поможет вам перейти от случайных результатов к стабильным профессиональным промптам</p>
+    </div>
+    
+    <script>
+        // Theme toggle functionality
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.getElementById('themeIcon');
+            const themeText = document.getElementById('themeText');
+            
+            body.classList.toggle('dark-theme');
+            
+            if (body.classList.contains('dark-theme')) {
+                themeIcon.textContent = '🌙';
+                themeText.textContent = 'Тёмная тема';
+                localStorage.setItem('theme', 'dark');
+            } else {
+                themeIcon.textContent = '☀️';
+                themeText.textContent = 'Светлая тема';
+                localStorage.setItem('theme', 'light');
+            }
+        }
+        
+        // Load saved theme preference
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-theme');
+                document.getElementById('themeIcon').textContent = '🌙';
+                document.getElementById('themeText').textContent = 'Тёмная тема';
+            }
+        });
+        
+        function toggleProblem(num) {
+            const checkbox = document.getElementById('problem' + num);
+            checkbox.checked = !checkbox.checked;
+            updateProblemStyle(num);
+        }
+        
+        function updateProblemStyle(num) {
+            const checkbox = document.getElementById('problem' + num);
+            const section = document.querySelector(`[data-problem="${num}"]`);
+            
+            if (checkbox.checked) {
+                section.classList.add('checked');
+            } else {
+                section.classList.remove('checked');
+            }
+        }
+        
+        for (let i = 1; i <= 6; i++) {
+            document.getElementById('problem' + i).addEventListener('change', function() {
+                updateProblemStyle(i);
+            });
+        }
+        
+        document.getElementById('diagnosticForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const checkedProblems = [];
+            const problemTexts = {
+                1: "Нет приоритета — модель не знает, что главное",
+                2: "Используете оценки вместо конкретики",
+                3: "Не задаёте визуальный язык (стиль гуляет)",
+                4: "Не используете negative-промпт или делаете его неправильно",
+                5: "Не контролируете композицию и ракурс",
+                6: "Хаотичная структура — нет повторяемости"
+            };
+            
+            for (let i = 1; i <= 6; i++) {
+                if (document.getElementById('problem' + i).checked) {
+                    checkedProblems.push(problemTexts[i]);
+                }
+            }
+            
+            const count = checkedProblems.length;
+            
+            document.getElementById('scoreNumber').textContent = count;
+            document.getElementById('scoreText').textContent = count === 1 ? 'ПРОБЛЕМА ОБНАРУЖЕНА' : 
+                                                               count > 1 && count < 5 ? 'ПРОБЛЕМЫ ОБНАРУЖЕНО' : 
+                                                               'ПРОБЛЕМ ОБНАРУЖЕНО';
+            
+            const problemsList = document.getElementById('problemsList');
+            problemsList.innerHTML = '';
+            
+            if (count === 0) {
+                problemsList.innerHTML = '<li style="padding-left: 0;">🎉 ОТЛИЧНО! Вы не отметили ни одной проблемы. Но даже если промпты работают, полный гайд поможет вам создавать их быстрее и понимать, ПОЧЕМУ они работают.</li>';
+            } else {
+                checkedProblems.forEach(problem => {
+                    const li = document.createElement('li');
+                    li.textContent = problem;
+                    problemsList.appendChild(li);
+                });
+            }
+            
+            document.getElementById('results').classList.add('active');
+            document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            
+            if (window.Telegram && window.Telegram.WebApp) {
+                window.Telegram.WebApp.sendData(JSON.stringify({
+                    action: 'diagnostic_completed',
+                    problems_count: count,
+                    problems: checkedProblems
+                }));
+            }
+        });
+        
+        // Handle "Get Guide" button click
+        function handleGetGuide() {
+            if (window.Telegram && window.Telegram.WebApp) {
+                // Send data back to bot that user wants to buy the guide
+                window.Telegram.WebApp.sendData(JSON.stringify({
+                    action: 'buy_guide',
+                    from: 'diagnostic_checklist'
+                }));
+            } else {
+                // Fallback for testing outside Telegram
+                alert('Эта функция работает только в Telegram боте.\n\nВернитесь в бот и нажмите кнопку "Купить гайд"');
+            }
+        }
+        
+        if (window.Telegram && window.Telegram.WebApp) {
+            window.Telegram.WebApp.ready();
+            window.Telegram.WebApp.expand();
+            window.Telegram.WebApp.MainButton.hide();
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Установка OpenClaw | @KIRILL.AI.POL</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            min-height: 100vh;
+            padding: 0;
+            line-height: 1.6;
+            position: relative;
+            overflow-x: hidden;
+            transition: background 0.4s ease, color 0.4s ease;
+        }
+        
+        /* Light theme (default) */
+        body {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 50%, #f8f9fa 100%);
+            color: #1a1a1a;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 20% 50%, rgba(212, 255, 0, 0.08) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 80%, rgba(0, 217, 255, 0.08) 0%, transparent 50%),
+                        radial-gradient(circle at 40% 20%, rgba(212, 255, 0, 0.05) 0%, transparent 50%);
+            animation: gradientShift 20s ease infinite;
+            z-index: 0;
+            pointer-events: none;
+        }
+        
+        /* Dark theme */
+        body.dark-theme {
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0a0a0a 100%);
+            color: #ffffff;
+        }
+        
+        body.dark-theme::before {
+            background: radial-gradient(circle at 20% 50%, rgba(212, 255, 0, 0.15) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 80%, rgba(0, 217, 255, 0.15) 0%, transparent 50%),
+                        radial-gradient(circle at 40% 20%, rgba(212, 255, 0, 0.1) 0%, transparent 50%);
+        }
+        
+        @keyframes gradientShift {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            33% { transform: translate(5%, 5%) rotate(120deg); }
+            66% { transform: translate(-5%, 5%) rotate(240deg); }
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            min-height: 100vh;
+            padding: 0;
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* Theme Toggle */
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50px;
+            padding: 8px 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+        }
+        
+        body.dark-theme .theme-toggle {
+            background: rgba(0, 0, 0, 0.6);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .theme-toggle:hover {
+            transform: scale(1.05);
+        }
+        
+        .theme-icon {
+            font-size: 18px;
+            line-height: 1;
+        }
+        
+        .theme-toggle-text {
+            font-size: 13px;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+        
+        body.dark-theme .theme-toggle-text {
+            color: #ffffff;
+        }
+        
+        /* Header */
+        .header {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 2px solid rgba(0, 0, 0, 0.06);
+            padding: 40px 30px 35px;
+            text-align: center;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
+        }
+        
+        body.dark-theme .header {
+            background: rgba(0, 0, 0, 0.4);
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+        }
+        
+        .brand {
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, #689f38 0%, #00a8cc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            opacity: 0.9;
+        }
+        
+        body.dark-theme .brand {
+            background: linear-gradient(135deg, #D4FF00 0%, #00D9FF 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        h1 {
+            font-size: 32px;
+            font-weight: 900;
+            letter-spacing: -1px;
+            line-height: 1.2;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, #689f38 0%, #00a8cc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        body.dark-theme h1 {
+            background: linear-gradient(135deg, #D4FF00 0%, #00D9FF 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .subtitle {
+            font-size: 16px;
+            color: #666666;
+            font-weight: 500;
+            line-height: 1.5;
+        }
+        
+        body.dark-theme .subtitle {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        /* Content */
+        .content {
+            padding: 40px 30px 60px;
+        }
+        
+        .intro-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 2px solid rgba(0, 0, 0, 0.06);
+            border-radius: 20px;
+            padding: 32px 28px;
+            margin-bottom: 32px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+        }
+        
+        body.dark-theme .intro-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        .intro-card h2 {
+            font-size: 20px;
+            font-weight: 800;
+            margin-bottom: 16px;
+            color: #1a1a1a;
+        }
+        
+        body.dark-theme .intro-card h2 {
+            color: #ffffff;
+        }
+        
+        .intro-card p {
+            font-size: 15px;
+            line-height: 1.7;
+            color: #444444;
+            margin-bottom: 12px;
+        }
+        
+        body.dark-theme .intro-card p {
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .intro-card p:last-child {
+            margin-bottom: 0;
+        }
+        
+        .warning-box {
+            background: rgba(255, 152, 0, 0.1);
+            border-left: 4px solid #ff9800;
+            border-radius: 12px;
+            padding: 20px 24px;
+            margin-top: 20px;
+        }
+        
+        body.dark-theme .warning-box {
+            background: rgba(255, 152, 0, 0.15);
+            border-left-color: #ffb300;
+        }
+        
+        .warning-box strong {
+            color: #e65100;
+            font-weight: 700;
+        }
+        
+        body.dark-theme .warning-box strong {
+            color: #ffb300;
+        }
+        
+        /* Step Card */
+        .step-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 2px solid rgba(0, 0, 0, 0.06);
+            border-radius: 20px;
+            padding: 32px 28px;
+            margin-bottom: 24px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+        }
+        
+        body.dark-theme .step-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        .step-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 48px rgba(0, 0, 0, 0.1);
+            border-color: rgba(139, 195, 74, 0.3);
+        }
+        
+        body.dark-theme .step-card:hover {
+            box-shadow: 0 12px 48px rgba(212, 255, 0, 0.15);
+            border-color: rgba(212, 255, 0, 0.3);
+        }
+        
+        .step-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        
+        .step-number {
+            background: linear-gradient(135deg, #689f38 0%, #00a8cc 100%);
+            color: white;
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: 900;
+            flex-shrink: 0;
+            box-shadow: 0 4px 16px rgba(139, 195, 74, 0.3);
+        }
+        
+        body.dark-theme .step-number {
+            background: linear-gradient(135deg, #D4FF00 0%, #00D9FF 100%);
+            color: #000000;
+            box-shadow: 0 4px 16px rgba(212, 255, 0, 0.3);
+        }
+        
+        .step-title {
+            font-size: 20px;
+            font-weight: 800;
+            color: #1a1a1a;
+            line-height: 1.3;
+        }
+        
+        body.dark-theme .step-title {
+            color: #ffffff;
+        }
+        
+        .step-content {
+            padding-left: 0;
+        }
+        
+        .step-content p {
+            font-size: 15px;
+            line-height: 1.7;
+            color: #444444;
+            margin-bottom: 16px;
+        }
+        
+        body.dark-theme .step-content p {
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .step-list {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        .step-list li {
+            position: relative;
+            padding-left: 32px;
+            margin-bottom: 14px;
+            font-size: 15px;
+            line-height: 1.6;
+            color: #2a2a2a;
+        }
+        
+        body.dark-theme .step-list li {
+            color: rgba(255, 255, 255, 0.85);
+        }
+        
+        .step-list li:before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: #689f38;
+            font-weight: 900;
+            font-size: 18px;
+        }
+        
+        body.dark-theme .step-list li:before {
+            color: #D4FF00;
+        }
+        
+        .step-list li:last-child {
+            margin-bottom: 0;
+        }
+        
+        .nested-list {
+            list-style: none;
+            padding-left: 24px;
+            margin-top: 12px;
+        }
+        
+        .nested-list li {
+            position: relative;
+            padding-left: 28px;
+            margin-bottom: 10px;
+            font-size: 14px;
+            color: #555555;
+        }
+        
+        body.dark-theme .nested-list li {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .nested-list li:before {
+            content: "◦";
+            position: absolute;
+            left: 0;
+            color: #00a8cc;
+            font-size: 20px;
+        }
+        
+        body.dark-theme .nested-list li:before {
+            color: #00D9FF;
+        }
+        
+        strong {
+            font-weight: 700;
+            color: #1a1a1a;
+        }
+        
+        body.dark-theme strong {
+            color: #ffffff;
+        }
+        
+        /* Code/Highlight */
+        code {
+            background: rgba(0, 0, 0, 0.06);
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
+            font-size: 14px;
+            color: #d32f2f;
+            font-weight: 600;
+        }
+        
+        body.dark-theme code {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ff6b6b;
+        }
+        
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 40px 30px;
+            font-size: 14px;
+            color: #999999;
+            font-weight: 500;
+        }
+        
+        body.dark-theme .footer {
+            color: rgba(255, 255, 255, 0.5);
+        }
+        
+        .footer-brand {
+            font-weight: 700;
+            background: linear-gradient(135deg, #689f38 0%, #00a8cc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        body.dark-theme .footer-brand {
+            background: linear-gradient(135deg, #D4FF00 0%, #00D9FF 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        /* Mobile optimization */
+        @media (max-width: 768px) {
+            .theme-toggle {
+                top: 15px;
+                right: 15px;
+                padding: 6px 12px;
+            }
+            
+            .theme-toggle-text {
+                display: none;
+            }
+            
+            .header {
+                padding: 35px 20px 30px;
+            }
+            
+            h1 {
+                font-size: 26px;
+            }
+            
+            .subtitle {
+                font-size: 15px;
+            }
+            
+            .content {
+                padding: 30px 20px 50px;
+            }
+            
+            .intro-card, .step-card {
+                padding: 24px 20px;
+            }
+            
+            .step-number {
+                width: 44px;
+                height: 44px;
+                font-size: 18px;
+            }
+            
+            .step-title {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="theme-toggle" onclick="toggleTheme()">
+        <span class="theme-icon" id="themeIcon">☀️</span>
+        <span class="theme-toggle-text" id="themeText">Светлая тема</span>
+    </div>
+    
+    <div class="container">
+        <div class="header">
+            <div class="brand">@KIRILL.AI.POL</div>
+            <h1>Установка OpenClaw</h1>
+            <p class="subtitle">Пошаговая инструкция по созданию автономного AI-ассистента в облаке</p>
+        </div>
+        
+        <div class="content">
+            <div class="intro-card">
+                <h2>🤖 Что такое OpenClaw?</h2>
+                <p>OpenClaw — это автономный AI-ассистент, который работает круглосуточно на облачном сервере. Вы можете управлять им через WhatsApp или Telegram со своего телефона, не держа открытыми вкладки браузера.</p>
+                <p><strong>Преимущества облачной установки:</strong></p>
+                <ul class="step-list">
+                    <li>Работает 24/7 без участия вашего компьютера</li>
+                    <li>Безопасность — изолирован от ваших личных файлов</li>
+                    <li>Нет замедления работы основного ПК</li>
+                    <li>Управление прямо из мессенджера</li>
+                </ul>
+                
+                <div class="warning-box">
+                    <p><strong>Внимание!</strong> Данная инструкция предназначена для создания своего AI-ассистента OpenClaw в облачном сервере. У ассистента не будет доступа к файлам вашего ПК, так как он находится на удаленном сервере.</p>
+                </div>
+            </div>
+            
+            <!-- Step 1 -->
+            <div class="step-card">
+                <div class="step-header">
+                    <div class="step-number">1</div>
+                    <div class="step-title">Аренда и настройка VPS на Hostinger</div>
+                </div>
+                <div class="step-content">
+                    <p>Облачный сервер позволяет агенту работать круглосуточно без замедления вашего компьютера и риска для личных файлов.</p>
+                    
+                    <ul class="step-list">
+                        <li><strong>Выберите провайдера:</strong> Рекомендуется Hostinger — визуальная панель управления без сложных команд терминала</li>
+                        
+                        <li><strong>Выберите тарифный план:</strong> KVM2 для лучшей производительности (KVM1 подходит для начала)</li>
+                        
+                        <li><strong>Операционная система:</strong> Выберите ОС с <code>LTS</code> (Long-Term Support) в названии для стабильности</li>
+                        
+                        <li><strong>Расположение сервера:</strong> Географически близкое к вам местоположение</li>
+                        
+                        <li><strong>Необходимые дополнения:</strong> Перед завершением покупки включите:
+                            <ul class="nested-list">
+                                <li>Сканер вредоносных программ</li>
+                                <li><strong>Docker Manager</strong> (критично важно! Создает изолированные контейнеры для безопасной работы)</li>
+                            </ul>
+                        </li>
+                        
+                        <li><strong>Завершение:</strong> Оплатите сервер. После установки Docker Manager ваш виртуальный компьютер готов к работе</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Step 2 -->
+            <div class="step-card">
+                <div class="step-header">
+                    <div class="step-number">2</div>
+                    <div class="step-title">Установите OpenClaw через Docker</div>
+                </div>
+                <div class="step-content">
+                    <ul class="step-list">
+                        <li>В панели управления Hostinger найдите <strong>Docker Manager</strong> в левой боковой панели</li>
+                        
+                        <li>Перейдите в каталог, найдите <strong>OpenClaw</strong> и нажмите <code>Развернуть</code></li>
+                        
+                        <li>Появится экран настройки:
+                            <ul class="nested-list">
+                                <li><strong>Gateway Token:</strong> Скопируйте и сохраните автоматически сгенерированный токен. Это пароль к вашей системе!</li>
+                                <li><strong>AI Provider Key:</strong> Вставьте API-ключ вашего провайдера AI:
+                                    <ul style="list-style: none; padding-left: 20px; margin-top: 8px;">
+                                        <li>• Если используете Claude → ключ из Anthropic</li>
+                                        <li>• Если используете GPT-4 → ключ из OpenAI</li>
+                                        <li>• Поле для неиспользуемого провайдера оставьте пустым</li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
+                        
+                        <li>Нажмите <code>Развернуть</code>. Установка займет 1-2 минуты</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Step 3 -->
+            <div class="step-card">
+                <div class="step-header">
+                    <div class="step-number">3</div>
+                    <div class="step-title">Первый запуск и вход в систему</div>
+                </div>
+                <div class="step-content">
+                    <ul class="step-list">
+                        <li>Как только статус изменится на <code>Running</code> (Работает), рядом появится номер порта</li>
+                        
+                        <li>Нажмите на этот порт, чтобы открыть веб-интерфейс</li>
+                        
+                        <li>Вставьте ранее сохраненный <strong>Gateway Token</strong> в поле входа</li>
+                        
+                        <li>Нажмите <code>Подключиться</code>. Теперь вы в системе и можете взаимодействовать с агентом через браузер!</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Step 4 -->
+            <div class="step-card">
+                <div class="step-header">
+                    <div class="step-number">4</div>
+                    <div class="step-title">Настройка безопасности</div>
+                </div>
+                <div class="step-content">
+                    <p>Чтобы агент был действительно автономным и безопасным, внесите свой номер телефона в белый список — он будет игнорировать команды от других пользователей.</p>
+                    
+                    <ul class="step-list">
+                        <li>Перейдите в <code>Настройки</code> → <code>Конфигурация</code> → вкладка <code>Raw</code></li>
+                        
+                        <li>Вставьте код конфигурации. В скобках этого кода введите <strong>свой номер телефона</strong></li>
+                        
+                        <li>Если вы ранее ввели ключ OpenAI, вставьте также конфигурацию конкретной модели, чтобы бот знал, какую модель запускать</li>
+                        
+                        <li>Нажмите <code>Сохранить</code></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Step 5 -->
+            <div class="step-card">
+                <div class="step-header">
+                    <div class="step-number">5</div>
+                    <div class="step-title">Подключите каналы обмена сообщениями</div>
+                </div>
+                <div class="step-content">
+                    <p>Этот шаг позволит управлять агентом со своего телефона, не держа открытой вкладку браузера.</p>
+                    
+                    <ul class="step-list">
+                        <li>Перейдите в раздел <code>Каналы</code> на боковой панели</li>
+                        
+                        <li>Вы увидите QR-код. Отсканируйте его с помощью <strong>WhatsApp</strong> или <strong>Telegram</strong>, чтобы связать свою учетную запись</li>
+                        
+                        <li>✅ Готово! Теперь ваш агент работает на изолированном сервере, и вы можете полностью управлять им со своего телефона</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Success Card -->
+            <div class="intro-card" style="margin-top: 32px; background: linear-gradient(135deg, rgba(139, 195, 74, 0.1) 0%, rgba(0, 168, 204, 0.1) 100%);">
+                <h2>🎉 Поздравляем!</h2>
+                <p>Ваш автономный AI-ассистент OpenClaw успешно установлен и готов к работе. Теперь вы можете:</p>
+                <ul class="step-list">
+                    <li>Управлять им из WhatsApp или Telegram</li>
+                    <li>Работать с ним 24/7 без включенного компьютера</li>
+                    <li>Быть уверенным в безопасности своих данных</li>
+                    <li>Настраивать и расширять функционал по мере необходимости</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="footer">
+            © 2026 <span class="footer-brand">@KIRILL.AI.POL</span> | Инструкция по установке OpenClaw
+        </div>
+    </div>
+    
+    <script>
+        // Theme toggle functionality
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.getElementById('themeIcon');
+            const themeText = document.getElementById('themeText');
+            
+            body.classList.toggle('dark-theme');
+            
+            if (body.classList.contains('dark-theme')) {
+                themeIcon.textContent = '🌙';
+                themeText.textContent = 'Тёмная тема';
+                localStorage.setItem('theme', 'dark');
+            } else {
+                themeIcon.textContent = '☀️';
+                themeText.textContent = 'Светлая тема';
+                localStorage.setItem('theme', 'light');
+            }
+        }
+        
+        // Load saved theme preference
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-theme');
+                document.getElementById('themeIcon').textContent = '🌙';
+                document.getElementById('themeText').textContent = 'Тёмная тема';
+            }
+        });
+    </script>
+</body>
+</html>
