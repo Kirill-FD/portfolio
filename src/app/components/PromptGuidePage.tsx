@@ -1,5 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import styles from "./PromptGuidePage.module.css";
+import exampleImage1 from "../../images/g1.webp";
+import exampleImage2 from "../../images/g2.webp";
+import exampleImage3 from "../../images/g3.webp";
+import exampleImage4 from "../../images/g4.webp";
+import exampleImage5 from "../../images/g5.webp";
 
 type SectionId =
   | "section1"
@@ -440,7 +445,13 @@ export function PromptGuidePage() {
                 <div className={cx("section-body")}>
                   <div className={cx("card")}>
                     <h3>🏗️ Структура промпта</h3>
-                    <ol style={{ listStyle: "decimal", paddingLeft: 24, color: "#2a2a2a" }}>
+                    <ol
+                      style={{
+                        listStyle: "decimal",
+                        paddingLeft: 24,
+                        color: isDarkTheme ? "rgba(255,255,255,0.9)" : "#2a2a2a",
+                      }}
+                    >
                       <li style={{ marginBottom: 10, lineHeight: 1.7 }}>
                         <strong>Главный объект</strong> (максимально конкретно)
                       </li>
@@ -482,7 +493,7 @@ export function PromptGuidePage() {
                       fontSize: 18,
                       fontWeight: 800,
                       margin: "32px 0 20px",
-                      color: "#1a1a1a",
+                      color: isDarkTheme ? "#ffffff" : "#1a1a1a",
                     }}
                   >
                     📄 Примеры структурирования
@@ -642,6 +653,14 @@ export function PromptGuidePage() {
                       copiedCodeId={copiedCodeId}
                       onCopy={copyCode}
                     />
+                    <div className={cx("example-image-wrap")}>
+                      <img
+                        src={exampleImage1}
+                        alt="Результат примера 1"
+                        className={cx("example-image")}
+                        loading="lazy"
+                      />
+                    </div>
                   </div>
 
                   <div className={cx("example-card")}>
@@ -655,6 +674,14 @@ export function PromptGuidePage() {
                       copiedCodeId={copiedCodeId}
                       onCopy={copyCode}
                     />
+                    <div className={cx("example-image-wrap")}>
+                      <img
+                        src={exampleImage2}
+                        alt="Результат примера 2"
+                        className={cx("example-image")}
+                        loading="lazy"
+                      />
+                    </div>
                   </div>
 
                   <div className={cx("example-card")}>
@@ -668,6 +695,14 @@ export function PromptGuidePage() {
                       copiedCodeId={copiedCodeId}
                       onCopy={copyCode}
                     />
+                    <div className={cx("example-image-wrap")}>
+                      <img
+                        src={exampleImage3}
+                        alt="Результат примера 3"
+                        className={cx("example-image")}
+                        loading="lazy"
+                      />
+                    </div>
                   </div>
 
                   <div className={cx("example-card")}>
@@ -681,6 +716,14 @@ export function PromptGuidePage() {
                       copiedCodeId={copiedCodeId}
                       onCopy={copyCode}
                     />
+                    <div className={cx("example-image-wrap")}>
+                      <img
+                        src={exampleImage4}
+                        alt="Результат примера 4"
+                        className={cx("example-image")}
+                        loading="lazy"
+                      />
+                    </div>
                   </div>
 
                   <div className={cx("example-card")}>
@@ -694,6 +737,14 @@ export function PromptGuidePage() {
                       copiedCodeId={copiedCodeId}
                       onCopy={copyCode}
                     />
+                    <div className={cx("example-image-wrap")}>
+                      <img
+                        src={exampleImage5}
+                        alt="Результат примера 5"
+                        className={cx("example-image")}
+                        loading="lazy"
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -752,10 +803,22 @@ export function PromptGuidePage() {
 
                   <div className={cx("card")}>
                     <h3>💎 Метод бесплатного доступа на месяц</h3>
-                    <p style={{ marginBottom: 16, fontStyle: "italic", color: "#666666" }}>
+                    <p
+                      style={{
+                        marginBottom: 16,
+                        fontStyle: "italic",
+                        color: isDarkTheme ? "rgba(255,255,255,0.75)" : "#666666",
+                      }}
+                    >
                       (Сам регулярно пользуюсь этим методом. Результат отличный)
                     </p>
-                    <ol style={{ listStyle: "decimal", paddingLeft: 24, color: "#2a2a2a" }}>
+                    <ol
+                      style={{
+                        listStyle: "decimal",
+                        paddingLeft: 24,
+                        color: isDarkTheme ? "rgba(255,255,255,0.9)" : "#2a2a2a",
+                      }}
+                    >
                       <li style={{ marginBottom: 12, lineHeight: 1.7 }}>
                         Переходим на сайт <strong>Gemini Business</strong> (business.gemini.google)
                       </li>

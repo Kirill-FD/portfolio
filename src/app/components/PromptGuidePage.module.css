@@ -720,6 +720,25 @@
   color: #d4ff00;
 }
 
+.prompt-guide-page .example-image-wrap {
+  margin-top: 16px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.prompt-guide-page.dark-theme .example-image-wrap {
+  border-color: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.prompt-guide-page .example-image {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
 .prompt-guide-page .bonus-link {
   display: inline-block;
   background: linear-gradient(135deg, #689f38 0%, #00a8cc 100%);
