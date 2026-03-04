@@ -68,7 +68,7 @@ export function Hero() {
         >
           <Sparkles size={14} style={{ color: "#00d4ff" }} />
           <span style={{ color: "#00d4ff", fontSize: 13, letterSpacing: "0.05em" }}>
-            AI-продукты и digital-решения
+            ИИ-продукты и цифровые решения
           </span>
         </div>
 
@@ -163,7 +163,7 @@ export function Hero() {
         <div className="flex flex-wrap justify-center gap-8 mt-16">
           {[
             { value: "20+", label: "Продуктов создано" },
-            { value: "500+", label: "Довольных клиентов" },
+            { value: "100+", label: "Довольных клиентов" },
             { value: "3+", label: "Года в сфере AI" },
           ].map((stat) => (
             <div key={stat.label} className="text-center">

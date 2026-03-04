@@ -1,13 +1,12 @@
 import { Brain, Zap, Target, Users } from "lucide-react";
 
-const aiImg =
-  "https://images.unsplash.com/photo-1664639985362-7eb8309f9e94?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxBSSUyMGFydGlmaWNpYWwlMjBpbnRlbGxpZ2VuY2UlMjBuZXVyYWwlMjBuZXR3b3JrJTIwZ2xvd2luZ3xlbnwxfHx8fDE3NzE2NzgzMDV8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral";
+import meImage from "../../images/me.webp";
 
 const skills = [
-  { icon: Brain, label: "AI & нейросети", desc: "Работаю с GPT, Midjourney, Stable Diffusion и другими инструментами" },
-  { icon: Zap, label: "Автоматизация", desc: "Make, n8n, Zapier — выстраиваю процессы без ручного труда" },
-  { icon: Target, label: "Digital-продукты", desc: "Создаю курсы, гайды и шаблоны для реального применения" },
-  { icon: Users, label: "Личный бренд", desc: "Помогаю упаковать экспертизу и выйти на новую аудиторию" },
+  { icon: Brain, label: "ИИ & нейросети", desc: "Работаю с GPT, Claude, Gemini и другими инструментами" },
+  { icon: Zap, label: "Автоматизация", desc: "Make, n8n — выстраиваю автоматизированные процессы без ручного труда" },
+  { icon: Target, label: "Цифровые продукты", desc: "Создаю чек-листы, гайды и шаблоны для реального применения" },
+  { icon: Users, label: "ИИ-агенты", desc: "Провожу оценку бизнес-процессов и разрабатываю стратегию интеграции ИИ-агентов" },
 ];
 
 export function About() {
@@ -65,8 +64,8 @@ export function About() {
               }}
             >
               <img
-                src={aiImg}
-                alt="AI visual"
+                src={meImage}
+                alt="Кирилл Полищук"
                 className="w-full object-cover"
                 style={{ height: 380 }}
               />
@@ -89,10 +88,10 @@ export function About() {
               }}
             >
               <div style={{ color: "#00d4ff", fontSize: 13, fontWeight: 600 }}>
-                ✦ AI-энтузиаст
+                ✦ ИИ-эксперт
               </div>
               <div style={{ color: "rgba(255,255,255,0.5)", fontSize: 12 }}>
-                с 2021 года
+                с 2022 года
               </div>
             </div>
           </div>
@@ -107,20 +106,9 @@ export function About() {
                 lineHeight: 1.8,
               }}
             >
-              Я создаю цифровые продукты и AI-инструменты, которые реально
+              Я создаю цифровые продукты, автоматизации и ИИ-инструменты, которые реально
               меняют качество работы. Мой подход — практичность и ясность: никаких
               сложных схем, только то, что работает и приносит результат.
-            </p>
-            <p
-              className="mb-10"
-              style={{
-                color: "rgba(255,255,255,0.5)",
-                fontSize: "1rem",
-                lineHeight: 1.8,
-              }}
-            >
-              Telegram и Instagram — мои основные платформы, где я делюсь
-              инсайтами, новинками и обновлениями продуктов.
             </p>
 
             {/* Skills grid */}
