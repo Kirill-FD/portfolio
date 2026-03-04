@@ -1,5 +1,5 @@
 import { Send, Instagram, Heart } from "lucide-react";
-import logoImage from "../../images/logo.png";
+import logoImage from "../../images/logo.webp";
 
 const navLinks = [
   { label: "Главная", href: "#hero" },

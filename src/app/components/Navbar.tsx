@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
-import logoImage from "../../images/logo.png";
+import logoImage from "../../images/logo.webp";
 
 const navLinks = [
   { label: "Главная", href: "#hero" },
