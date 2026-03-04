@@ -106,7 +106,7 @@ export function Hero() {
             lineHeight: 1.7,
           }}
         >
-          Цифровые продукты, AI-инструменты и обучающие материалы — всё, что
+          Цифровые продукты, ИИ-инструменты и обучающие материалы — всё, что
           поможет вам автоматизировать, масштабировать и расти
         </p>
 
@@ -162,9 +162,9 @@ export function Hero() {
         {/* Stats */}
         <div className="flex flex-wrap justify-center gap-8 mt-16">
           {[
-            { value: "20+", label: "Продуктов создано" },
-            { value: "100+", label: "Довольных клиентов" },
-            { value: "3+", label: "Года в сфере AI" },
+            { value: "80+", label: "Продуктов создано" },
+            { value: "50+", label: "Довольных клиентов" },
+            { value: "3+", label: "Года в сфере ИИ" },
           ].map((stat) => (
             <div key={stat.label} className="text-center">
               <div
