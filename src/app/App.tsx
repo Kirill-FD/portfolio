@@ -55,16 +55,21 @@ export default function App() {
     hasPromptGuideAccess(),
   );
   const previousPageRef = useRef<AppPage | null>(null);
+  const portfolioScrollYRef = useRef<number>(0);
 
   const navigateToPage = useCallback((targetPage: AppPage) => {
     if (targetPage === PROMPT_GUIDE_PRODUCT_ID && !hasPromptGuideAccess()) {
       return;
     }
 
+    if (page === "portfolio" && targetPage !== "portfolio") {
+      portfolioScrollYRef.current = window.scrollY;
+    }
+
     const nextHash = targetPage === "portfolio" ? "" : pageToHash[targetPage];
     window.history.pushState(null, "", `${window.location.pathname}${nextHash}`);
     setPage(targetPage);
-  }, []);
+  }, [page]);
 
   useEffect(() => {
     const searchParams = new URLSearchParams(window.location.search);
@@ -91,6 +96,10 @@ export default function App() {
       const nextPage = hashToPage[window.location.hash] ?? "portfolio";
       const unlocked = hasPromptGuideAccess();
 
+      if (page === "portfolio" && nextPage !== "portfolio") {
+        portfolioScrollYRef.current = window.scrollY;
+      }
+
       setIsPromptGuideUnlocked(unlocked);
 
       if (nextPage === PROMPT_GUIDE_PRODUCT_ID && !unlocked) {
@@ -109,7 +118,7 @@ export default function App() {
       window.removeEventListener("popstate", onLocationChange);
       window.removeEventListener("hashchange", onLocationChange);
     };
-  }, []);
+  }, [page]);
 
   useEffect(() => {
     const previousPage = previousPageRef.current;
@@ -125,11 +134,11 @@ export default function App() {
       return;
     }
 
-    // On returning to the main page from a material page, jump to footer area.
+    // On returning to the main page, restore scroll position from before leaving.
     if (previousPage !== "portfolio" && page === "portfolio") {
       requestAnimationFrame(() => {
         window.scrollTo({
-          top: document.documentElement.scrollHeight,
+          top: portfolioScrollYRef.current,
           behavior: "auto",
         });
       });
