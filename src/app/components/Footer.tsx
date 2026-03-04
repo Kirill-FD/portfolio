@@ -1,4 +1,5 @@
-import { MessageCircle, Instagram, Heart } from "lucide-react";
+import { Send, Instagram, Heart } from "lucide-react";
+import logoImage from "../../images/logo.png";
 
 const navLinks = [
   { label: "Главная", href: "#hero" },
@@ -28,16 +29,13 @@ export function Footer() {
             onClick={() => scrollTo("#hero")}
             className="flex items-center gap-2"
           >
-            <div
-              className="w-8 h-8 rounded-lg flex items-center justify-center"
-              style={{
-                background: "linear-gradient(135deg, #4b7c84, #00d4ff)",
-              }}
-            >
-              <span style={{ color: "#fff", fontWeight: 700, fontSize: 14 }}>A</span>
-            </div>
-            <span style={{ color: "#ffffff", fontWeight: 600, fontSize: 16 }}>
-              портфолио
+            <img
+              src={logoImage}
+              alt="Логотип"
+              className="w-10 h-10 rounded-lg object-cover"
+            />
+            <span style={{ color: "#ffffff", fontWeight: 600, fontSize: 17 }}>
+              Кирилл Полищук
             </span>
           </button>
 
@@ -64,7 +62,7 @@ export function Footer() {
           {/* Socials */}
           <div className="flex items-center gap-3">
             <a
-              href="https://t.me/username"
+              href="https://t.me/kirpol_AI"
               target="_blank"
               rel="noopener noreferrer"
               className="w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-200"
@@ -81,10 +79,10 @@ export function Footer() {
                   "rgba(75,124,132,0.15)";
               }}
             >
-              <MessageCircle size={16} />
+              <Send size={16} />
             </a>
             <a
-              href="https://instagram.com/username"
+              href="https://www.instagram.com/kirill.ai.pol/"
               target="_blank"
               rel="noopener noreferrer"
               className="w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-200"
@@ -115,7 +113,7 @@ export function Footer() {
             fontSize: 13,
           }}
         >
-          <span>© 2025. Сделано с</span>
+          <span>© 2026. Сделано с</span>
           <Heart size={12} style={{ color: "#4b7c84", fill: "#4b7c84" }} />
           <span>и ИИ.</span>
         </div>

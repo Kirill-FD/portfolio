@@ -1,0 +1,1307 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Как писать промпты для генерации изображений | @KIRILL.AI.POL</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            min-height: 100vh;
+            padding: 0;
+            line-height: 1.6;
+            position: relative;
+            overflow-x: hidden;
+            transition: background 0.4s ease, color 0.4s ease;
+        }
+        
+        /* Light theme (default) */
+        body {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 50%, #f8f9fa 100%);
+            color: #1a1a1a;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 20% 50%, rgba(212, 255, 0, 0.08) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 80%, rgba(0, 217, 255, 0.08) 0%, transparent 50%),
+                        radial-gradient(circle at 40% 20%, rgba(212, 255, 0, 0.05) 0%, transparent 50%);
+            animation: gradientShift 20s ease infinite;
+            z-index: 0;
+            pointer-events: none;
+        }
+        
+        /* Dark theme */
+        body.dark-theme {
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0a0a0a 100%);
+            color: #ffffff;
+        }
+        
+        body.dark-theme::before {
+            background: radial-gradient(circle at 20% 50%, rgba(212, 255, 0, 0.15) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 80%, rgba(0, 217, 255, 0.15) 0%, transparent 50%),
+                        radial-gradient(circle at 40% 20%, rgba(212, 255, 0, 0.1) 0%, transparent 50%);
+        }
+        
+        @keyframes gradientShift {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            33% { transform: translate(5%, 5%) rotate(120deg); }
+            66% { transform: translate(-5%, 5%) rotate(240deg); }
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            min-height: 100vh;
+            padding: 0;
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* Theme Toggle */
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50px;
+            padding: 8px 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+        }
+        
+        body.dark-theme .theme-toggle {
+            background: rgba(0, 0, 0, 0.6);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .theme-toggle:hover {
+            transform: scale(1.05);
+        }
+        
+        /* Progress Bar */
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: rgba(0, 0, 0, 0.05);
+            z-index: 999;
+        }
+        
+        body.dark-theme .progress-bar {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #D4FF00 0%, #00D9FF 100%);
+            width: 0%;
+            transition: width 0.3s ease;
+            box-shadow: 0 0 20px rgba(212, 255, 0, 0.5);
+        }
+        
+        /* Header */
+        .header {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 2px solid rgba(0, 0, 0, 0.06);
+            padding: 40px 30px 35px;
+            text-align: center;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
+        }
+        
+        body.dark-theme .header {
+            background: rgba(0, 0, 0, 0.4);
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+        }
+        
+        .brand {
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, #689f38 0%, #00a8cc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: shimmer 3s ease infinite;
+        }
+        
+        body.dark-theme .brand {
+            background: linear-gradient(135deg, #D4FF00 0%, #00D9FF 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        @keyframes shimmer {
+            0%, 100% { opacity: 0.9; }
+            50% { opacity: 1; }
+        }
+        
+        h1 {
+            font-size: 34px;
+            font-weight: 900;
+            letter-spacing: -1.5px;
+            line-height: 1.2;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, #689f38 0%, #00a8cc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        body.dark-theme h1 {
+            background: linear-gradient(135deg, #D4FF00 0%, #00D9FF 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .subtitle {
+            font-size: 16px;
+            color: #666666;
+            font-weight: 500;
+            line-height: 1.6;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        
+        body.dark-theme .subtitle {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        /* Table of Contents */
+        .toc {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 2px solid rgba(0, 0, 0, 0.06);
+            border-radius: 20px;
+            padding: 28px 24px;
+            margin: 32px 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+        }
+        
+        body.dark-theme .toc {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        .toc h2 {
+            font-size: 20px;
+            font-weight: 800;
+            margin-bottom: 20px;
+            color: #1a1a1a;
+        }
+        
+        body.dark-theme .toc h2 {
+            color: #ffffff;
+        }
+        
+        .toc-list {
+            list-style: none;
+            display: grid;
+            gap: 12px;
+        }
+        
+        .toc-item {
+            background: rgba(255, 255, 255, 0.5);
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            border-radius: 12px;
+            padding: 14px 18px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 15px;
+            font-weight: 600;
+            color: #2a2a2a;
+        }
+        
+        body.dark-theme .toc-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.9);
+        }
+        
+        .toc-item:hover {
+            transform: translateX(8px);
+            border-color: #8bc34a;
+            background: rgba(139, 195, 74, 0.1);
+        }
+        
+        body.dark-theme .toc-item:hover {
+            border-color: #D4FF00;
+            background: rgba(212, 255, 0, 0.1);
+        }
+        
+        .toc-number {
+            display: inline-block;
+            width: 28px;
+            height: 28px;
+            background: linear-gradient(135deg, #689f38 0%, #00a8cc 100%);
+            color: white;
+            border-radius: 8px;
+            text-align: center;
+            line-height: 28px;
+            font-weight: 700;
+            font-size: 13px;
+            margin-right: 12px;
+        }
+        
+        body.dark-theme .toc-number {
+            background: linear-gradient(135deg, #D4FF00 0%, #00D9FF 100%);
+            color: #000000;
+        }
+        
+        /* Content */
+        .content {
+            padding: 20px 30px 60px;
+        }
+        
+        /* Section */
+        .section {
+            margin-bottom: 40px;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 0.6s ease forwards;
+        }
+        
+        .section:nth-child(1) { animation-delay: 0.1s; }
+        .section:nth-child(2) { animation-delay: 0.2s; }
+        .section:nth-child(3) { animation-delay: 0.3s; }
+        
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+            padding: 20px 24px;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 2px solid rgba(0, 0, 0, 0.06);
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        body.dark-theme .section-header {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .section-header:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(139, 195, 74, 0.15);
+        }
+        
+        body.dark-theme .section-header:hover {
+            box-shadow: 0 8px 24px rgba(212, 255, 0, 0.15);
+        }
+        
+        .section-number {
+            background: linear-gradient(135deg, #689f38 0%, #00a8cc 100%);
+            color: white;
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: 900;
+            flex-shrink: 0;
+            box-shadow: 0 4px 16px rgba(139, 195, 74, 0.3);
+        }
+        
+        body.dark-theme .section-number {
+            background: linear-gradient(135deg, #D4FF00 0%, #00D9FF 100%);
+            color: #000000;
+        }
+        
+        .section-title {
+            font-size: 22px;
+            font-weight: 800;
+            color: #1a1a1a;
+            flex: 1;
+        }
+        
+        body.dark-theme .section-title {
+            color: #ffffff;
+        }
+        
+        .section-icon {
+            font-size: 24px;
+            transition: transform 0.3s ease;
+        }
+        
+        .section.expanded .section-icon {
+            transform: rotate(180deg);
+        }
+        
+        .section-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease;
+        }
+        
+        .section.expanded .section-content {
+            max-height: 10000px;
+        }
+        
+        .section-body {
+            padding: 0 24px 24px;
+        }
+        
+        /* Card */
+        .card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 2px solid rgba(0, 0, 0, 0.06);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+            transition: all 0.3s ease;
+        }
+        
+        body.dark-theme .card {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+        }
+        
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+        }
+        
+        body.dark-theme .card:hover {
+            box-shadow: 0 8px 24px rgba(212, 255, 0, 0.1);
+        }
+        
+        .card h3 {
+            font-size: 18px;
+            font-weight: 800;
+            margin-bottom: 16px;
+            color: #1a1a1a;
+        }
+        
+        body.dark-theme .card h3 {
+            color: #ffffff;
+        }
+        
+        .card p {
+            font-size: 15px;
+            line-height: 1.7;
+            color: #444444;
+            margin-bottom: 12px;
+        }
+        
+        body.dark-theme .card p {
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        /* List */
+        .styled-list {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        .styled-list li {
+            position: relative;
+            padding-left: 32px;
+            margin-bottom: 14px;
+            font-size: 15px;
+            line-height: 1.7;
+            color: #2a2a2a;
+        }
+        
+        body.dark-theme .styled-list li {
+            color: rgba(255, 255, 255, 0.85);
+        }
+        
+        .styled-list li:before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: #689f38;
+            font-weight: 900;
+            font-size: 18px;
+        }
+        
+        body.dark-theme .styled-list li:before {
+            color: #D4FF00;
+        }
+        
+        /* Highlight Box */
+        .highlight-box {
+            background: rgba(139, 195, 74, 0.1);
+            border-left: 4px solid #689f38;
+            border-radius: 12px;
+            padding: 20px 24px;
+            margin: 20px 0;
+        }
+        
+        body.dark-theme .highlight-box {
+            background: rgba(212, 255, 0, 0.1);
+            border-left-color: #D4FF00;
+        }
+        
+        .highlight-box strong {
+            color: #689f38;
+            font-weight: 700;
+        }
+        
+        body.dark-theme .highlight-box strong {
+            color: #D4FF00;
+        }
+        
+        /* Warning Box */
+        .warning-box {
+            background: rgba(255, 152, 0, 0.1);
+            border-left: 4px solid #ff9800;
+            border-radius: 12px;
+            padding: 20px 24px;
+            margin: 20px 0;
+        }
+        
+        body.dark-theme .warning-box {
+            background: rgba(255, 152, 0, 0.15);
+            border-left-color: #ffb300;
+        }
+        
+        .warning-box strong {
+            color: #e65100;
+            font-weight: 700;
+        }
+        
+        body.dark-theme .warning-box strong {
+            color: #ffb300;
+        }
+        
+        /* Code Block */
+        .code-block {
+            background: rgba(0, 0, 0, 0.06);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            position: relative;
+            font-family: 'Fira Code', monospace;
+            overflow-x: auto;
+        }
+        
+        body.dark-theme .code-block {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        
+        .code-lang {
+            font-size: 12px;
+            font-weight: 600;
+            color: #666666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        body.dark-theme .code-lang {
+            color: rgba(255, 255, 255, 0.5);
+        }
+        
+        .copy-btn {
+            background: rgba(139, 195, 74, 0.9);
+            color: white;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        body.dark-theme .copy-btn {
+            background: rgba(212, 255, 0, 0.9);
+            color: #000000;
+        }
+        
+        .copy-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(139, 195, 74, 0.3);
+        }
+        
+        .copy-btn.copied {
+            background: #4caf50;
+        }
+        
+        pre {
+            margin: 0;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #2a2a2a;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        
+        body.dark-theme pre {
+            color: rgba(255, 255, 255, 0.9);
+        }
+        
+        code {
+            font-family: 'Fira Code', monospace;
+        }
+        
+        /* Method Card */
+        .method-card {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(15px);
+            border: 2px solid rgba(0, 0, 0, 0.06);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 16px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        body.dark-theme .method-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .method-card:hover {
+            transform: translateX(8px);
+            border-color: #689f38;
+            box-shadow: 0 8px 24px rgba(139, 195, 74, 0.15);
+        }
+        
+        body.dark-theme .method-card:hover {
+            border-color: #D4FF00;
+            box-shadow: 0 8px 24px rgba(212, 255, 0, 0.15);
+        }
+        
+        .method-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        
+        .method-badge {
+            background: linear-gradient(135deg, #689f38 0%, #00a8cc 100%);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        
+        body.dark-theme .method-badge {
+            background: linear-gradient(135deg, #D4FF00 0%, #00D9FF 100%);
+            color: #000000;
+        }
+        
+        .method-card h4 {
+            font-size: 18px;
+            font-weight: 800;
+            color: #1a1a1a;
+        }
+        
+        body.dark-theme .method-card h4 {
+            color: #ffffff;
+        }
+        
+        .method-desc {
+            font-size: 14px;
+            color: #666666;
+            line-height: 1.6;
+        }
+        
+        body.dark-theme .method-desc {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        /* Example Card */
+        .example-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            border: 2px solid rgba(0, 0, 0, 0.06);
+            border-radius: 20px;
+            padding: 28px;
+            margin-bottom: 24px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+        }
+        
+        body.dark-theme .example-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        .example-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .example-title {
+            font-size: 20px;
+            font-weight: 800;
+            color: #1a1a1a;
+        }
+        
+        body.dark-theme .example-title {
+            color: #ffffff;
+        }
+        
+        .example-method {
+            background: rgba(139, 195, 74, 0.2);
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #689f38;
+        }
+        
+        body.dark-theme .example-method {
+            background: rgba(212, 255, 0, 0.2);
+            color: #D4FF00;
+        }
+        
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 40px 30px;
+            font-size: 14px;
+            color: #999999;
+            font-weight: 500;
+        }
+        
+        body.dark-theme .footer {
+            color: rgba(255, 255, 255, 0.5);
+        }
+        
+        /* Mobile */
+        @media (max-width: 768px) {
+            .theme-toggle {
+                top: 15px;
+                right: 15px;
+                padding: 6px 12px;
+            }
+            
+            .header {
+                padding: 35px 20px 30px;
+            }
+            
+            h1 {
+                font-size: 28px;
+            }
+            
+            .content {
+                padding: 20px 20px 50px;
+            }
+            
+            .toc {
+                margin: 24px 20px;
+            }
+            
+            .section-number {
+                width: 40px;
+                height: 40px;
+                font-size: 18px;
+            }
+            
+            .section-title {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+    </div>
+    
+    <div class="theme-toggle" onclick="toggleTheme()">
+        <span style="font-size: 18px;" id="themeIcon">☀️</span>
+    </div>
+    
+    <div class="container">
+        <div class="header">
+            <div class="brand">@KIRILL.AI.POL</div>
+            <h1>Как писать промпты для генерации изображений</h1>
+            <p class="subtitle">Полный гайд: от структуры до методов. Научитесь создавать предсказуемые картинки с первого раза</p>
+        </div>
+        
+        <div class="toc">
+            <h2>📋 Содержание гайда</h2>
+            <ul class="toc-list">
+                <li class="toc-item" onclick="scrollToSection('section1')">
+                    <span class="toc-number">1</span>
+                    Как создать промпт, чтобы изображение было «как в голове»
+                </li>
+                <li class="toc-item" onclick="scrollToSection('section2')">
+                    <span class="toc-number">2</span>
+                    Как правильно описывать контекст
+                </li>
+                <li class="toc-item" onclick="scrollToSection('section3')">
+                    <span class="toc-number">3</span>
+                    Правила структуры промпта (универсальный шаблон)
+                </li>
+                <li class="toc-item" onclick="scrollToSection('section4')">
+                    <span class="toc-number">4</span>
+                    5 методов написания промптов
+                </li>
+                <li class="toc-item" onclick="scrollToSection('section5')">
+                    <span class="toc-number">5</span>
+                    Примеры промптов с разбором
+                </li>
+                <li class="toc-item" onclick="scrollToSection('section6')">
+                    <span class="toc-number">🎁</span>
+                    Бонус: площадки и бесплатный доступ
+                </li>
+            </ul>
+        </div>
+        
+        <div class="content">
+            <!-- Section 1 -->
+            <div class="section expanded" id="section1">
+                <div class="section-header" onclick="toggleSection(this)">
+                    <div class="section-number">1</div>
+                    <div class="section-title">Как создать промпт, чтобы изображение было «как в голове»</div>
+                    <span class="section-icon">▼</span>
+                </div>
+                <div class="section-content">
+                    <div class="section-body">
+                        <div class="highlight-box">
+                            <strong>Ключевая идея:</strong> Нейросеть не «понимает» замысел целиком — она собирает изображение из подсказок и вероятностей. Поэтому вам нужно зафиксировать главный объект, уточнить контекст, описать детали, задать стиль и ограничить лишнее.
+                        </div>
+                        
+                        <div class="card">
+                            <h3>✅ Правила хорошего промпта (быстрый чек-лист)</h3>
+                            <ul class="styled-list">
+                                <li><strong>Язык промпта:</strong> чаще всего английский даёт более стабильные результаты. Ключевые визуальные термины (lens, soft light, bokeh) лучше оставлять на английском</li>
+                                <li><strong>Приоритеты и порядок:</strong> самое важное — в начало (объект → критичные детали → контекст)</li>
+                                <li><strong>Конкретика вместо оценок:</strong> "премиальный packshot на белом фоне, мягкий софтбокс" работает лучше, чем "красиво и стильно"</li>
+                                <li><strong>Ограничения (negative) по делу:</strong> добавляйте только то, что реально портит результат (blur, watermark, extra fingers)</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="warning-box">
+                            <strong>❌ Самые частые причины «не попал в ожидания»:</strong>
+                            <ul class="styled-list" style="margin-top: 12px;">
+                                <li>Нет приоритета: много деталей, но не сказано, что главное</li>
+                                <li>Мало конкретики: "красивая девушка", "крутой город"</li>
+                                <li>Несовместимые стили: "фотореализм + аниме" в одном</li>
+                                <li>Нет композиции/ракурса — модель выбирает сама</li>
+                                <li>Нет ограничений — модель добавляет лишние объекты</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Section 2 -->
+            <div class="section" id="section2">
+                <div class="section-header" onclick="toggleSection(this)">
+                    <div class="section-number">2</div>
+                    <div class="section-title">Как правильно описывать контекст</div>
+                    <span class="section-icon">▼</span>
+                </div>
+                <div class="section-content">
+                    <div class="section-body">
+                        <div class="card">
+                            <h3>📝 Формула описания</h3>
+                            <p><strong>Кто/Что + Где + Когда + Как снято/нарисовано + Настроение</strong></p>
+                        </div>
+                        
+                        <div class="card">
+                            <h3>🎯 Объект (главное)</h3>
+                            <ul class="styled-list">
+                                <li>Кто/что (человек/продукт/место)</li>
+                                <li>Ключевые признаки (возраст, одежда, материал, форма, цвет)</li>
+                                <li>Действие/поза/выражение лица</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="card">
+                            <h3>🌍 Окружение</h3>
+                            <ul class="styled-list">
+                                <li>Локация (улица Токио, лес после дождя, студия)</li>
+                                <li>Предметы рядом (минимум, только важное)</li>
+                                <li>Фон (чистый/размытый/детализированный)</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="card">
+                            <h3>✨ Визуальный язык (сильно влияет на точность)</h3>
+                            <ul class="styled-list">
+                                <li>Стиль (фото/3D/иллюстрация/аниме)</li>
+                                <li>Свет (softbox, контровой, неон)</li>
+                                <li>Камера/ракурс (крупный план, общий план)</li>
+                                <li>Композиция (центральная, правило третей)</li>
+                                <li>Качество (детализация, резкость)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Section 3 -->
+            <div class="section" id="section3">
+                <div class="section-header" onclick="toggleSection(this)">
+                    <div class="section-number">3</div>
+                    <div class="section-title">Универсальный шаблон из 8 блоков</div>
+                    <span class="section-icon">▼</span>
+                </div>
+                <div class="section-content">
+                    <div class="section-body">
+                        <div class="card">
+                            <h3>🏗️ Структура промпта</h3>
+                            <ol style="list-style: decimal; padding-left: 24px; color: #2a2a2a;">
+                                <li style="margin-bottom: 10px; line-height: 1.7;"><strong>Главный объект</strong> (максимально конкретно)</li>
+                                <li style="margin-bottom: 10px; line-height: 1.7;"><strong>Контекст/локация/время</strong></li>
+                                <li style="margin-bottom: 10px; line-height: 1.7;"><strong>Критичные детали</strong> (что нельзя потерять)</li>
+                                <li style="margin-bottom: 10px; line-height: 1.7;"><strong>Композиция и ракурс</strong></li>
+                                <li style="margin-bottom: 10px; line-height: 1.7;"><strong>Свет и цвет</strong></li>
+                                <li style="margin-bottom: 10px; line-height: 1.7;"><strong>Стиль/медиум</strong> (фото/3D/иллюстрация)</li>
+                                <li style="margin-bottom: 10px; line-height: 1.7;"><strong>Качество/рендер</strong> (детализация)</li>
+                                <li style="margin-bottom: 10px; line-height: 1.7;"><strong>Negative</strong> (что исключить)</li>
+                            </ol>
+                        </div>
+                        
+                        <div class="highlight-box">
+                            <strong>💡 Почему иногда лучше писать промпт в разметке:</strong>
+                            <p style="margin-top: 12px;">Разметка полезна, когда вы хотите не терять структуру, быстрее редактировать, использовать ассистента для сборки промпта, хранить библиотеку или работать в команде.</p>
+                        </div>
+                        
+                        <h3 style="font-size: 18px; font-weight: 800; margin: 32px 0 20px; color: #1a1a1a;">📄 Примеры структурирования</h3>
+                        
+                        <!-- Markdown Example -->
+                        <div class="code-block">
+                            <div class="code-header">
+                                <span class="code-lang">Markdown</span>
+                                <button class="copy-btn" onclick="copyCode(this, 'markdown-code')">
+                                    <span>📋</span>
+                                    <span>Копировать</span>
+                                </button>
+                            </div>
+                            <pre id="markdown-code">**Prompt**
+- Subject: matte black perfume bottle with a golden cap
+- Context: premium studio packshot, clean background
+- Details: subtle engraved logo, realistic reflections
+- Composition: centered-left, 4:5 vertical
+- Lighting: softbox key light + rim light
+- Style: high-end commercial photography
+- Quality: ultra-detailed, sharp focus
+- Negative: text, watermark, blur</pre>
+                        </div>
+                        
+                        <!-- XML Example -->
+                        <div class="code-block">
+                            <div class="code-header">
+                                <span class="code-lang">XML</span>
+                                <button class="copy-btn" onclick="copyCode(this, 'xml-code')">
+                                    <span>📋</span>
+                                    <span>Копировать</span>
+                                </button>
+                            </div>
+                            <pre id="xml-code">&lt;prompt&gt;
+  &lt;subject&gt;portrait of a woman, freckles, green eyes&lt;/subject&gt;
+  &lt;context&gt;coffee shop near window, rainy day&lt;/context&gt;
+  &lt;details&gt;beige trench coat, gold earrings&lt;/details&gt;
+  &lt;camera&gt;close-up, shallow depth of field&lt;/camera&gt;
+  &lt;lighting&gt;soft natural window light&lt;/lighting&gt;
+  &lt;style&gt;realistic photography&lt;/style&gt;
+  &lt;quality&gt;ultra-detailed, sharp focus&lt;/quality&gt;
+  &lt;negative&gt;blurry, watermark&lt;/negative&gt;
+&lt;/prompt&gt;</pre>
+                        </div>
+                        
+                        <!-- JSON Example -->
+                        <div class="code-block">
+                            <div class="code-header">
+                                <span class="code-lang">JSON</span>
+                                <button class="copy-btn" onclick="copyCode(this, 'json-code')">
+                                    <span>📋</span>
+                                    <span>Копировать</span>
+                                </button>
+                            </div>
+                            <pre id="json-code">{
+  "subject": "futuristic city street at night",
+  "context": "wet asphalt, neon signs, fog",
+  "composition": "wide shot, vanishing point",
+  "lighting": "neon rim light, high contrast",
+  "style": ["digital illustration", "cyberpunk"],
+  "quality": ["high detail", "clean edges"],
+  "negative": ["photorealism", "text"]
+}</pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Section 4 -->
+            <div class="section" id="section4">
+                <div class="section-header" onclick="toggleSection(this)">
+                    <div class="section-number">4</div>
+                    <div class="section-title">5 методов написания промптов</div>
+                    <span class="section-icon">▼</span>
+                </div>
+                <div class="section-content">
+                    <div class="section-body">
+                        <div class="method-card">
+                            <div class="method-header">
+                                <span class="method-badge">Метод 1</span>
+                                <h4>"ТЗ-каркас" (самый надёжный)</h4>
+                            </div>
+                            <p class="method-desc"><strong>Когда использовать:</strong> когда нужен предсказуемый результат</p>
+                            <p class="method-desc"><strong>Как:</strong> заполните шаблон из 8 блоков (объект → контекст → детали → композиция → свет → стиль → качество → негатив)</p>
+                            <p class="method-desc"><strong>Плюс:</strong> стабильно повторяемо. <strong>Минус:</strong> чуть дольше писать</p>
+                        </div>
+                        
+                        <div class="method-card">
+                            <div class="method-header">
+                                <span class="method-badge">Метод 2</span>
+                                <h4>"От общего к частному"</h4>
+                            </div>
+                            <p class="method-desc"><strong>Когда использовать:</strong> вы знаете идею, но не уверены в деталях</p>
+                            <p class="method-desc"><strong>Как:</strong> 1) Опишите сцену одной строкой 2) Добавьте 3-5 уточнений 3) Добавьте 3 критичных детали 4) В конце — негатив</p>
+                        </div>
+                        
+                        <div class="method-card">
+                            <div class="method-header">
+                                <span class="method-badge">Метод 3</span>
+                                <h4>"Слои" (Layering)</h4>
+                            </div>
+                            <p class="method-desc"><strong>Когда использовать:</strong> если модель «гуляет» и результат нестабилен</p>
+                            <p class="method-desc"><strong>Как:</strong> пишите промпт слоями: 1) смысл и объект 2) контекст 3) композиция 4) свет и цвет 5) стиль 6) негатив</p>
+                        </div>
+                        
+                        <div class="method-card">
+                            <div class="method-header">
+                                <span class="method-badge">Метод 4</span>
+                                <h4>"Ограничения сначала"</h4>
+                            </div>
+                            <p class="method-desc"><strong>Когда использовать:</strong> реклама продукта, бренд-материалы, строгий дизайн</p>
+                            <p class="method-desc"><strong>Как:</strong> начните с ограничений и целей (packshot, белый фон, формат 4:5), затем объект и детали</p>
+                            <p class="method-desc"><strong>Плюс:</strong> меньше сюрпризов. <strong>Минус:</strong> иногда снижает креативность</p>
+                        </div>
+                        
+                        <div class="method-card">
+                            <div class="method-header">
+                                <span class="method-badge">Метод 5</span>
+                                <h4>"Референс-описание"</h4>
+                            </div>
+                            <p class="method-desc"><strong>Когда использовать:</strong> нужен конкретный визуальный язык (кинематографичный свет, премиальный packshot)</p>
+                            <p class="method-desc"><strong>Как:</strong> используйте профессиональные термины — для фото: lens, bokeh, rim light; для 3D: octane render, subsurface scattering; для иллюстрации: lineart, watercolor wash</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Section 5 -->
+            <div class="section" id="section5">
+                <div class="section-header" onclick="toggleSection(this)">
+                    <div class="section-number">5</div>
+                    <div class="section-title">Примеры промптов с разбором</div>
+                    <span class="section-icon">▼</span>
+                </div>
+                <div class="section-content">
+                    <div class="section-body">
+                        <!-- Example 1 -->
+                        <div class="example-card">
+                            <div class="example-header">
+                                <h3 class="example-title">Пример 1: Портрет (фотореализм)</h3>
+                                <span class="example-method">ТЗ-каркас</span>
+                            </div>
+                            <div class="code-block">
+                                <div class="code-header">
+                                    <span class="code-lang">Prompt</span>
+                                    <button class="copy-btn" onclick="copyCode(this, 'example1-code')">
+                                        <span>📋</span>
+                                        <span>Копировать</span>
+                                    </button>
+                                </div>
+                                <pre id="example1-code">Subject: photorealistic portrait of a 28-year-old woman, Scandinavian appearance, natural freckles, green eyes
+
+Context: indoor coffee shop near window, rainy day outside
+
+Details: beige trench coat, minimal gold earrings, subtle makeup, soft smile, slightly wet hair strands
+
+Camera/Composition: close-up portrait, eye-level, shallow depth of field, 85mm lens look, background bokeh
+
+Lighting/Color: soft natural window light, warm skin tones, muted cinematic palette
+
+Style/Medium: realistic photography, high detail skin texture
+
+Quality: ultra-detailed, sharp focus on eyes
+
+Negative: blurry, deformed face, extra fingers, heavy makeup, watermark, text</pre>
+                            </div>
+                        </div>
+                        
+                        <!-- Example 2 -->
+                        <div class="example-card">
+                            <div class="example-header">
+                                <h3 class="example-title">Пример 2: Пейзаж (кинематограф)</h3>
+                                <span class="example-method">От общего к частному</span>
+                            </div>
+                            <div class="code-block">
+                                <div class="code-header">
+                                    <span class="code-lang">Prompt</span>
+                                    <button class="copy-btn" onclick="copyCode(this, 'example2-code')">
+                                        <span>📋</span>
+                                        <span>Копировать</span>
+                                    </button>
+                                </div>
+                                <pre id="example2-code">A vast mountain valley at sunrise with low fog between pine forests; wide-angle view, cinematic composition, golden hour light, dramatic clouds; winding river reflecting light, tiny cabin far away, atmospheric haze; realistic landscape photography, high dynamic range; Negative: oversaturated colors, cartoon, people in foreground, text, watermark</pre>
+                            </div>
+                        </div>
+                        
+                        <!-- Example 3 -->
+                        <div class="example-card">
+                            <div class="example-header">
+                                <h3 class="example-title">Пример 3: Иллюстрация (детская книга)</h3>
+                                <span class="example-method">Слои</span>
+                            </div>
+                            <div class="code-block">
+                                <div class="code-header">
+                                    <span class="code-lang">Prompt</span>
+                                    <button class="copy-btn" onclick="copyCode(this, 'example3-code')">
+                                        <span>📋</span>
+                                        <span>Копировать</span>
+                                    </button>
+                                </div>
+                                <pre id="example3-code">Layer 1: a friendly fox teaching a small rabbit to read
+Layer 2: cozy forest clearing, picnic blanket, stack of books, autumn leaves
+Layer 3: medium shot, characters centered, clear silhouettes
+Layer 4: warm soft light, pastel palette, gentle contrast
+Layer 5: children's book illustration, watercolor wash, visible paper texture, soft edges
+Layer 6 Negative: photorealism, harsh shadows, scary expressions, text, watermark</pre>
+                            </div>
+                        </div>
+                        
+                        <!-- Example 4 -->
+                        <div class="example-card">
+                            <div class="example-header">
+                                <h3 class="example-title">Пример 4: Реклама продукта (packshot)</h3>
+                                <span class="example-method">Ограничения сначала</span>
+                            </div>
+                            <div class="code-block">
+                                <div class="code-header">
+                                    <span class="code-lang">Prompt</span>
+                                    <button class="copy-btn" onclick="copyCode(this, 'example4-code')">
+                                        <span>📋</span>
+                                        <span>Копировать</span>
+                                    </button>
+                                </div>
+                                <pre id="example4-code">Goal/Constraints: premium studio packshot, clean background, no text, space on the right for tagline, minimal props
+
+Product: matte black perfume bottle with golden cap, modern rectangular shape, subtle engraved logo
+
+Composition: centered-left, 4:5 vertical framing, slight top-down angle
+
+Lighting: softbox key light, controlled rim light, gentle reflections
+
+Style: high-end commercial product photography
+
+Quality: extremely sharp, realistic materials
+
+Negative: clutter, hands, readable labels, watermark, blur, distortion</pre>
+                            </div>
+                        </div>
+                        
+                        <!-- Example 5 -->
+                        <div class="example-card">
+                            <div class="example-header">
+                                <h3 class="example-title">Пример 5: Постер (графика + стиль)</h3>
+                                <span class="example-method">Референс-термины</span>
+                            </div>
+                            <div class="code-block">
+                                <div class="code-header">
+                                    <span class="code-lang">Prompt</span>
+                                    <button class="copy-btn" onclick="copyCode(this, 'example5-code')">
+                                        <span>📋</span>
+                                        <span>Копировать</span>
+                                    </button>
+                                </div>
+                                <pre id="example5-code">A futuristic city street at night, neon signs, wet asphalt reflections, a lone cyclist in silhouette; wide shot, strong leading lines, vanishing point perspective; neon rim light, volumetric fog, high contrast, teal-magenta harmony; stylized digital illustration, cyberpunk poster art, crisp linework, gradient shading; Negative: photorealism, messy lines, low resolution, text, watermark</pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Section 6 - Bonus -->
+            <div class="section" id="section6">
+                <div class="section-header" onclick="toggleSection(this)">
+                    <div class="section-number">🎁</div>
+                    <div class="section-title">Бонус: площадки и бесплатный доступ</div>
+                    <span class="section-icon">▼</span>
+                </div>
+                <div class="section-content">
+                    <div class="section-body">
+                        <div class="highlight-box">
+                            <strong>🎉 Специально для вас!</strong>
+                            <p style="margin-top: 12px;">Я собрал лучшие площадки для генерации изображений в Nano Banana Pro, чтобы вы могли быстро сравнить результаты и выбрать удобный рабочий процесс. И дополнительно подготовил метод бесплатного использования.</p>
+                        </div>
+                        
+                        <div class="card">
+                            <h3>🆓 Площадки для бесплатного использования Nano Banana Pro:</h3>
+                            <ul class="styled-list">
+                                <li><strong>artlist.io</strong> — 2 бесплатных генерации в день</li>
+                                <li><strong>Felo.ai</strong> — 4 бесплатных генерации в день</li>
+                                <li><strong>Higgsfield.ai</strong> — 5 генераций в день + видео функции</li>
+                                <li><strong>hailuoai</strong> — 35 генераций на месяц</li>
+                                <li><strong>flowith.io</strong> — ~1000 генераций на месяц</li>
+                                <li><strong>arena.ai</strong> — 2 генерации бесплатно</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="card">
+                            <h3>💎 Метод бесплатного доступа на месяц</h3>
+                            <p style="margin-bottom: 16px; font-style: italic; color: #666666;">(Сам регулярно пользуюсь этим методом. Результат отличный)</p>
+                            <ol style="list-style: decimal; padding-left: 24px; color: #2a2a2a;">
+                                <li style="margin-bottom: 12px; line-height: 1.7;">Переходим на сайт <strong>Gemini Business</strong> (business.gemini.google)</li>
+                                <li style="margin-bottom: 12px; line-height: 1.7;">Генерируем бесплатную одноразовую почту (temp-mail.org). <strong>После генерации НЕ обновляем!</strong></li>
+                                <li style="margin-bottom: 12px; line-height: 1.7;">Копируем почту, вставляем на сайт Gemini Business и возвращаемся к сервису с почтой</li>
+                                <li style="margin-bottom: 12px; line-height: 1.7;">Копируем пришедший код из 6 символов, вставляем на Gemini Business и жмём Verify</li>
+                                <li style="margin-bottom: 12px; line-height: 1.7;">Поздравляю! Теперь у вас бесплатная подписка Nano Banana Pro на месяц 🎉</li>
+                            </ol>
+                        </div>
+                        
+                        <div style="text-align: center; padding: 32px 0;">
+                            <a href="https://t.me/kirpol_AI" target="_blank" style="display: inline-block; background: linear-gradient(135deg, #689f38 0%, #00a8cc 100%); color: white; padding: 16px 40px; border-radius: 12px; text-decoration: none; font-weight: 700; font-size: 16px; box-shadow: 0 8px 24px rgba(139, 195, 74, 0.3); transition: all 0.3s ease;">
+                                📱 Мой TG-канал
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            © 2026 <span style="font-weight: 700; background: linear-gradient(135deg, #689f38 0%, #00a8cc 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">@KIRILL.AI.POL</span> | Полный гайд по промпт-инжинирингу
+        </div>
+    </div>
+    
+    <script>
+        // Theme toggle
+        function toggleTheme() {
+            document.body.classList.toggle('dark-theme');
+            const icon = document.getElementById('themeIcon');
+            icon.textContent = document.body.classList.contains('dark-theme') ? '🌙' : '☀️';
+            localStorage.setItem('theme', document.body.classList.contains('dark-theme') ? 'dark' : 'light');
+        }
+        
+        // Load saved theme
+        window.addEventListener('DOMContentLoaded', () => {
+            if (localStorage.getItem('theme') === 'dark') {
+                document.body.classList.add('dark-theme');
+                document.getElementById('themeIcon').textContent = '🌙';
+            }
+            
+            // Auto-expand first section
+            const firstSection = document.getElementById('section1');
+            if (firstSection) {
+                firstSection.classList.add('expanded');
+            }
+        });
+        
+        // Toggle section
+        function toggleSection(header) {
+            const section = header.parentElement;
+            section.classList.toggle('expanded');
+        }
+        
+        // Scroll to section
+        function scrollToSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            if (section) {
+                section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                
+                // Auto-expand section
+                setTimeout(() => {
+                    if (!section.classList.contains('expanded')) {
+                        section.classList.add('expanded');
+                    }
+                }, 500);
+            }
+        }
+        
+        // Copy code
+        function copyCode(button, codeId) {
+            const code = document.getElementById(codeId).textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                const originalHTML = button.innerHTML;
+                button.innerHTML = '<span>✅</span><span>Скопировано!</span>';
+                button.classList.add('copied');
+                
+                setTimeout(() => {
+                    button.innerHTML = originalHTML;
+                    button.classList.remove('copied');
+                }, 2000);
+            });
+        }
+        
+        // Progress bar
+        window.addEventListener('scroll', () => {
+            const windowHeight = window.innerHeight;
+            const documentHeight = document.documentElement.scrollHeight;
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            const scrollPercentage = (scrollTop / (documentHeight - windowHeight)) * 100;
+            
+            document.getElementById('progressFill').style.width = scrollPercentage + '%';
+        });
+    </script>
+</body>
+</html>

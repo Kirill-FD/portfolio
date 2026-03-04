@@ -1,47 +1,28 @@
-import { Send, MessageCircle, Instagram, Mail, ArrowRight } from "lucide-react";
-import { useState } from "react";
+import { Send, Instagram, ArrowRight } from "lucide-react";
 
 const socialLinks = [
   {
-    icon: MessageCircle,
+    icon: Send,
     label: "Telegram",
-    handle: "@username",
-    href: "https://t.me/username",
+    handle: "@kirpol_AI",
+    href: "https://t.me/kirpol_AI",
     color: "#4b7c84",
     bg: "rgba(75,124,132,0.15)",
     border: "rgba(75,124,132,0.3)",
   },
   {
     icon: Instagram,
-    label: "Instagram",
-    handle: "@username",
-    href: "https://instagram.com/username",
+    label: "Instagram*",
+    handle: "@kirill.ai.pol",
+    href: "https://www.instagram.com/kirill.ai.pol/",
     color: "#c77dff",
     bg: "rgba(199,125,255,0.1)",
     border: "rgba(199,125,255,0.3)",
-  },
-  {
-    icon: Mail,
-    label: "Email",
-    handle: "hello@example.com",
-    href: "mailto:hello@example.com",
-    color: "#00d4ff",
-    bg: "rgba(0,212,255,0.1)",
-    border: "rgba(0,212,255,0.3)",
+    note: "Деятельность Meta Platforms Inc. (Facebook, Instagram) запрещена на территории РФ",
   },
 ];
 
 export function Contact() {
-  const [form, setForm] = useState({ name: "", email: "", message: "" });
-  const [sent, setSent] = useState(false);
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setSent(true);
-    setTimeout(() => setSent(false), 4000);
-    setForm({ name: "", email: "", message: "" });
-  };
-
   return (
     <section
       id="contact"
@@ -99,11 +80,11 @@ export function Contact() {
             className="mt-4 max-w-xl mx-auto"
             style={{ color: "rgba(255,255,255,0.5)", fontSize: "1rem" }}
           >
-            Есть идея, вопрос или хотите индивидуальный проект? Напишите мне!
+            Есть идея, вопрос или хотите индивидуальный проект?
           </p>
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-12">
+        <div className="max-w-3xl mx-auto">
           {/* Social links */}
           <div>
             <h3
@@ -117,7 +98,7 @@ export function Contact() {
               Найти меня здесь
             </h3>
             <div className="flex flex-col gap-4 mb-10">
-              {socialLinks.map(({ icon: Icon, label, handle, href, color, bg, border }) => (
+              {socialLinks.map(({ icon: Icon, label, handle, href, color, bg, border, note }) => (
                 <a
                   key={label}
                   href={href}
@@ -149,6 +130,19 @@ export function Contact() {
                     <div style={{ color: "rgba(255,255,255,0.45)", fontSize: 13 }}>
                       {handle}
                     </div>
+                    {note && (
+                      <div
+                        style={{
+                          color: "rgba(255,255,255,0.42)",
+                          fontSize: 11,
+                          fontStyle: "italic",
+                          marginTop: 4,
+                          lineHeight: 1.4,
+                        }}
+                      >
+                        {note}
+                      </div>
+                    )}
                   </div>
                   <ArrowRight size={16} style={{ color: "rgba(255,255,255,0.3)" }} />
                 </a>
@@ -170,155 +164,6 @@ export function Contact() {
                 Отвечаю в Telegram в течение нескольких часов. Это самый быстрый способ связаться.
               </div>
             </div>
-          </div>
-
-          {/* Contact form */}
-          <div>
-            <h3
-              style={{
-                color: "#ffffff",
-                fontSize: "1.1rem",
-                fontWeight: 600,
-                marginBottom: 24,
-              }}
-            >
-              Написать напрямую
-            </h3>
-
-            {sent ? (
-              <div
-                className="p-8 rounded-2xl text-center"
-                style={{
-                  background: "rgba(75,124,132,0.1)",
-                  border: "1px solid rgba(75,124,132,0.4)",
-                }}
-              >
-                <div style={{ fontSize: "2.5rem", marginBottom: 12 }}>✅</div>
-                <div style={{ color: "#ffffff", fontSize: 18, fontWeight: 700, marginBottom: 8 }}>
-                  Сообщение отправлено!
-                </div>
-                <div style={{ color: "rgba(255,255,255,0.5)", fontSize: 14 }}>
-                  Отвечу вам в ближайшее время.
-                </div>
-              </div>
-            ) : (
-              <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-                <div>
-                  <label
-                    style={{ color: "rgba(255,255,255,0.6)", fontSize: 14, display: "block", marginBottom: 8 }}
-                  >
-                    Имя
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="Ваше имя"
-                    required
-                    value={form.name}
-                    onChange={(e) => setForm({ ...form, name: e.target.value })}
-                    className="w-full px-4 py-3 rounded-xl outline-none transition-all duration-200"
-                    style={{
-                      background: "rgba(255,255,255,0.05)",
-                      border: "1px solid rgba(255,255,255,0.1)",
-                      color: "#ffffff",
-                      fontSize: 15,
-                    }}
-                    onFocus={(e) => {
-                      (e.target as HTMLElement).style.borderColor = "rgba(75,124,132,0.6)";
-                      (e.target as HTMLElement).style.background = "rgba(75,124,132,0.08)";
-                    }}
-                    onBlur={(e) => {
-                      (e.target as HTMLElement).style.borderColor = "rgba(255,255,255,0.1)";
-                      (e.target as HTMLElement).style.background = "rgba(255,255,255,0.05)";
-                    }}
-                  />
-                </div>
-
-                <div>
-                  <label
-                    style={{ color: "rgba(255,255,255,0.6)", fontSize: 14, display: "block", marginBottom: 8 }}
-                  >
-                    Email
-                  </label>
-                  <input
-                    type="email"
-                    placeholder="your@email.com"
-                    required
-                    value={form.email}
-                    onChange={(e) => setForm({ ...form, email: e.target.value })}
-                    className="w-full px-4 py-3 rounded-xl outline-none transition-all duration-200"
-                    style={{
-                      background: "rgba(255,255,255,0.05)",
-                      border: "1px solid rgba(255,255,255,0.1)",
-                      color: "#ffffff",
-                      fontSize: 15,
-                    }}
-                    onFocus={(e) => {
-                      (e.target as HTMLElement).style.borderColor = "rgba(75,124,132,0.6)";
-                      (e.target as HTMLElement).style.background = "rgba(75,124,132,0.08)";
-                    }}
-                    onBlur={(e) => {
-                      (e.target as HTMLElement).style.borderColor = "rgba(255,255,255,0.1)";
-                      (e.target as HTMLElement).style.background = "rgba(255,255,255,0.05)";
-                    }}
-                  />
-                </div>
-
-                <div>
-                  <label
-                    style={{ color: "rgba(255,255,255,0.6)", fontSize: 14, display: "block", marginBottom: 8 }}
-                  >
-                    Сообщение
-                  </label>
-                  <textarea
-                    rows={5}
-                    placeholder="Расскажите о вашем проекте или задайте вопрос..."
-                    required
-                    value={form.message}
-                    onChange={(e) => setForm({ ...form, message: e.target.value })}
-                    className="w-full px-4 py-3 rounded-xl outline-none transition-all duration-200 resize-none"
-                    style={{
-                      background: "rgba(255,255,255,0.05)",
-                      border: "1px solid rgba(255,255,255,0.1)",
-                      color: "#ffffff",
-                      fontSize: 15,
-                    }}
-                    onFocus={(e) => {
-                      (e.target as HTMLElement).style.borderColor = "rgba(75,124,132,0.6)";
-                      (e.target as HTMLElement).style.background = "rgba(75,124,132,0.08)";
-                    }}
-                    onBlur={(e) => {
-                      (e.target as HTMLElement).style.borderColor = "rgba(255,255,255,0.1)";
-                      (e.target as HTMLElement).style.background = "rgba(255,255,255,0.05)";
-                    }}
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  className="flex items-center justify-center gap-2 py-4 rounded-xl transition-all duration-200"
-                  style={{
-                    background: "linear-gradient(135deg, #4b7c84, #3d6870)",
-                    color: "#fff",
-                    fontSize: 16,
-                    fontWeight: 600,
-                    boxShadow: "0 0 25px rgba(75,124,132,0.35)",
-                  }}
-                  onMouseEnter={(e) => {
-                    (e.currentTarget as HTMLElement).style.boxShadow =
-                      "0 0 35px rgba(75,124,132,0.55)";
-                    (e.currentTarget as HTMLElement).style.transform = "translateY(-1px)";
-                  }}
-                  onMouseLeave={(e) => {
-                    (e.currentTarget as HTMLElement).style.boxShadow =
-                      "0 0 25px rgba(75,124,132,0.35)";
-                    (e.currentTarget as HTMLElement).style.transform = "translateY(0)";
-                  }}
-                >
-                  <Send size={16} />
-                  Отправить сообщение
-                </button>
-              </form>
-            )}
           </div>
         </div>
       </div>
