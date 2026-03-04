@@ -1,9 +1,13 @@
-import type { AppPage } from "../types";
+import { useEffect, useState } from "react";
 import { Lock, Unlock } from "lucide-react";
 
 import analysImage from "../../images/analys.webp";
 import openclawImage from "../../images/openclaw.webp";
 import guideImage from "../../images/guide.webp";
+import type { AppPage } from "../types";
+
+type ProductPage = Extract<AppPage, "diagnostic-checklist" | "openclaw-guide" | "prompt-guide">;
+type LegalPage = Extract<AppPage, "privacy-policy" | "personal-data-consent" | "offer-agreement">;
 
 type Product = {
   id: number;
@@ -11,7 +15,7 @@ type Product = {
   description: string;
   image: string;
   isFree: boolean;
-  page: Extract<AppPage, "diagnostic-checklist" | "openclaw-guide" | "prompt-guide">;
+  page: ProductPage;
 };
 
 const products: Product[] = [
@@ -44,105 +48,251 @@ const products: Product[] = [
   },
 ];
 
+const legalDocuments: Array<{ id: number; title: string; page: LegalPage }> = [
+  { id: 1, title: "Политикой конфиденциальности", page: "privacy-policy" },
+  { id: 2, title: "Согласием на обработку персональных данных", page: "personal-data-consent" },
+  { id: 3, title: "Договором оферты", page: "offer-agreement" },
+];
+
 type ProductsProps = {
-  onOpenProduct: (page: Product["page"]) => void;
+  onOpenProduct: (page: ProductPage) => void;
+  hasPromptGuideAccess: boolean;
 };
 
-export function Products({ onOpenProduct }: ProductsProps) {
+export function Products({ onOpenProduct, hasPromptGuideAccess }: ProductsProps) {
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState<boolean>(false);
+  const [isLegalAccepted, setIsLegalAccepted] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (!isPaymentModalOpen) {
+      return;
+    }
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setIsPaymentModalOpen(false);
+        setIsLegalAccepted(false);
+      }
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [isPaymentModalOpen]);
+
+  const openPaymentModal = () => {
+    setIsPaymentModalOpen(true);
+    setIsLegalAccepted(false);
+  };
+
+  const closePaymentModal = () => {
+    setIsPaymentModalOpen(false);
+    setIsLegalAccepted(false);
+  };
+
+  const handleProceedToPayment = () => {
+    if (!isLegalAccepted) {
+      return;
+    }
+
+    window.alert("Сервис оплаты временно недоступен. Пожалуйста, попробуйте позже.");
+    closePaymentModal();
+  };
+
   return (
-    <section
-      id="products"
-      className="py-24 relative overflow-hidden"
-      style={{ background: "#131316" }}
-    >
-      {/* Separator */}
-      <div
-        className="absolute top-0 left-0 right-0 h-px"
-        style={{
-          background:
-            "linear-gradient(90deg, transparent, rgba(75,124,132,0.5), transparent)",
-        }}
-      />
+    <>
+      <section
+        id="products"
+        className="py-24 relative overflow-hidden"
+        style={{ background: "#131316" }}
+      >
+        {/* Separator */}
+        <div
+          className="absolute top-0 left-0 right-0 h-px"
+          style={{
+            background:
+              "linear-gradient(90deg, transparent, rgba(75,124,132,0.5), transparent)",
+          }}
+        />
 
-      {/* BG glow */}
-      <div
-        className="absolute rounded-full blur-3xl pointer-events-none"
-        style={{
-          width: 500,
-          height: 500,
-          background: "rgba(75,124,132,0.07)",
-          top: "20%",
-          right: "-15%",
-        }}
-      />
+        {/* BG glow */}
+        <div
+          className="absolute rounded-full blur-3xl pointer-events-none"
+          style={{
+            width: 500,
+            height: 500,
+            background: "rgba(75,124,132,0.07)",
+            top: "20%",
+            right: "-15%",
+          }}
+        />
 
-      <div className="max-w-6xl mx-auto px-6">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <span
-            className="inline-block px-3 py-1 rounded-full mb-4"
-            style={{
-              background: "rgba(75,124,132,0.15)",
-              color: "#4b7c84",
-              fontSize: 13,
-              letterSpacing: "0.1em",
-              textTransform: "uppercase",
-            }}
+        <div className="max-w-6xl mx-auto px-6">
+          {/* Header */}
+          <div className="text-center mb-12">
+            <span
+              className="inline-block px-3 py-1 rounded-full mb-4"
+              style={{
+                background: "rgba(75,124,132,0.15)",
+                color: "#4b7c84",
+                fontSize: 13,
+                letterSpacing: "0.1em",
+                textTransform: "uppercase",
+              }}
+            >
+              Продукты
+            </span>
+            <h2
+              style={{
+                fontSize: "clamp(1.8rem, 4vw, 2.8rem)",
+                fontWeight: 700,
+                color: "#ffffff",
+                lineHeight: 1.2,
+              }}
+            >
+              Мои материалы и{" "}
+              <span style={{ color: "#4b7c84" }}>гайды</span>
+            </h2>
+          </div>
+
+          {/* Products grid */}
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {products.map((product) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+                hasPromptGuideAccess={hasPromptGuideAccess}
+                onOpen={() => onOpenProduct(product.page)}
+                onRequestPayment={openPaymentModal}
+              />
+            ))}
+          </div>
+
+          {/* Bottom note */}
+          <p
+            className="text-center mt-12"
+            style={{ color: "rgba(255,255,255,0.3)", fontSize: 14 }}
           >
-            Продукты
-          </span>
-          <h2
-            style={{
-              fontSize: "clamp(1.8rem, 4vw, 2.8rem)",
-              fontWeight: 700,
-              color: "#ffffff",
-              lineHeight: 1.2,
-            }}
-          >
-            Мои материалы и{" "}
-            <span style={{ color: "#4b7c84" }}>гайды</span>
-          </h2>
+            Нужен индивидуальный продукт?{" "}
+            <button
+              onClick={() => {
+                const el = document.querySelector("#contact");
+                if (el) el.scrollIntoView({ behavior: "smooth" });
+              }}
+              style={{ color: "#4b7c84", textDecoration: "underline" }}
+            >
+              Напишите мне
+            </button>
+          </p>
         </div>
+      </section>
 
-        {/* Products grid */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {products.map((product) => (
-            <ProductCard
-              key={product.id}
-              product={product}
-              onOpen={() => onOpenProduct(product.page)}
-            />
-          ))}
-        </div>
-
-        {/* Bottom note */}
-        <p
-          className="text-center mt-12"
-          style={{ color: "rgba(255,255,255,0.3)", fontSize: 14 }}
-        >
-          Нужен индивидуальный продукт?{" "}
-          <button
-            onClick={() => {
-              const el = document.querySelector("#contact");
-              if (el) el.scrollIntoView({ behavior: "smooth" });
+      {isPaymentModalOpen && (
+        <div className="fixed inset-0 z-[70] flex items-center justify-center px-4">
+          <div
+            className="absolute inset-0"
+            style={{ background: "rgba(0, 0, 0, 0.78)" }}
+            onClick={closePaymentModal}
+          />
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label="Подтверждение перед оплатой"
+            className="relative w-full max-w-xl rounded-2xl border p-6 md:p-8"
+            style={{
+              background: "#1b1c20",
+              borderColor: "rgba(255,255,255,0.12)",
+              boxShadow: "0 25px 60px rgba(0,0,0,0.5)",
             }}
-            style={{ color: "#4b7c84", textDecoration: "underline" }}
           >
-            Напишите мне
-          </button>
-        </p>
-      </div>
-    </section>
+            <button
+              type="button"
+              className="absolute right-4 top-4 text-sm"
+              style={{ color: "rgba(255,255,255,0.6)" }}
+              onClick={closePaymentModal}
+            >
+              Закрыть
+            </button>
+
+            <h3 className="mb-3 text-xl font-semibold text-white md:text-2xl">
+              Подтверждение перед оплатой
+            </h3>
+            <p className="mb-4 text-sm leading-7 text-white/80 md:text-base">
+              Подтвердите, что вы ознакомились со следующими документами:
+            </p>
+
+            <ul className="mb-5 space-y-2">
+              {legalDocuments.map((document) => (
+                <li key={document.id} className="text-sm leading-7 text-white/80 md:text-base">
+                  •{" "}
+                  <a
+                    href={`#/${document.page}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ color: "#4b7c84", textDecoration: "underline" }}
+                  >
+                    {document.title}
+                  </a>
+                </li>
+              ))}
+            </ul>
+
+            <label
+              className="mb-6 flex items-center gap-3 rounded-lg border px-4 py-3 text-white/90"
+              style={{ borderColor: "rgba(255,255,255,0.12)", background: "rgba(255,255,255,0.03)" }}
+            >
+              <input
+                type="checkbox"
+                checked={isLegalAccepted}
+                onChange={(event) => setIsLegalAccepted(event.target.checked)}
+              />
+              <span className="text-sm md:text-base">ознакомлен(а)</span>
+            </label>
+
+            <button
+              type="button"
+              onClick={handleProceedToPayment}
+              disabled={!isLegalAccepted}
+              className="w-full rounded-lg px-4 py-3 text-sm font-semibold transition-all duration-200 md:text-base"
+              style={{
+                background: isLegalAccepted ? "#4b7c84" : "rgba(255,255,255,0.18)",
+                color: isLegalAccepted ? "#ffffff" : "rgba(255,255,255,0.5)",
+                cursor: isLegalAccepted ? "pointer" : "not-allowed",
+              }}
+            >
+              Перейти к оплате
+            </button>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
 
 function ProductCard({
   product,
+  hasPromptGuideAccess,
   onOpen,
+  onRequestPayment,
 }: {
   product: Product;
+  hasPromptGuideAccess: boolean;
   onOpen: () => void;
+  onRequestPayment: () => void;
 }) {
+  const isPaidAndLocked = !product.isFree && !hasPromptGuideAccess;
+  const actionLabel = isPaidAndLocked ? "Оплатить" : "Открыть";
+
+  const handleActionClick = () => {
+    if (isPaidAndLocked) {
+      onRequestPayment();
+      return;
+    }
+
+    onOpen();
+  };
 
   return (
     <div
@@ -258,7 +408,7 @@ function ProductCard({
 
           <button
             type="button"
-            onClick={onOpen}
+            onClick={handleActionClick}
             className="flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200"
             style={{
               background: product.isFree ? "rgba(0,212,255,0.15)" : "#4b7c84",
@@ -278,7 +428,7 @@ function ProductCard({
                 : "#4b7c84";
             }}
           >
-            Открыть
+            {actionLabel}
           </button>
         </div>
       </div>

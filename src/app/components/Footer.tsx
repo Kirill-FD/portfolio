@@ -106,7 +106,7 @@ export function Footer() {
 
         {/* Bottom */}
         <div
-          className="mt-8 pt-6 text-center flex items-center justify-center gap-1"
+          className="mt-8 pt-6 text-center flex flex-wrap items-center justify-center gap-1"
           style={{
             borderTop: "1px solid rgba(255,255,255,0.06)",
             color: "rgba(255,255,255,0.3)",
@@ -116,6 +116,28 @@ export function Footer() {
           <span>© 2026. Сделано с</span>
           <Heart size={12} style={{ color: "#4b7c84", fill: "#4b7c84" }} />
           <span>и ИИ.</span>
+          <span className="mx-1">|</span>
+          <a
+            href="#/privacy-policy"
+            style={{ color: "rgba(255,255,255,0.5)" }}
+            onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = "#4b7c84")}
+            onMouseLeave={(e) =>
+              ((e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.5)")
+            }
+          >
+            Политика конфиденциальных данных
+          </a>
+          <span>и</span>
+          <a
+            href="#/personal-data-consent"
+            style={{ color: "rgba(255,255,255,0.5)" }}
+            onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = "#4b7c84")}
+            onMouseLeave={(e) =>
+              ((e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.5)")
+            }
+          >
+            Согласие на обработку персональных данных
+          </a>
         </div>
       </div>
     </footer>
